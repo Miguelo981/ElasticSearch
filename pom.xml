@@ -24,16 +24,9 @@
     </repositories>
     <dependencies>
         <dependency>
-            <groupId>org.elasticsearch</groupId>
-            <artifactId>elasticsearch</artifactId>
+            <groupId>org.elasticsearch.client</groupId>
+            <artifactId>elasticsearch-rest-high-level-client</artifactId>
             <version>7.5.2</version>
-            <type>jar</type>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-surefire-plugin</artifactId>
-            <version>3.0.0-M4</version>
-            <type>maven-plugin</type>
         </dependency>
     </dependencies>
 </project>
