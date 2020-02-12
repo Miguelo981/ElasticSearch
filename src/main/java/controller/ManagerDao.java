@@ -6,7 +6,10 @@ import java.util.HashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.apache.http.HttpHost;
+import org.elasticsearch.ElasticsearchException;
 import org.elasticsearch.action.DocWriteRequest;
+import org.elasticsearch.action.delete.DeleteRequest;
+import org.elasticsearch.action.delete.DeleteResponse;
 import org.elasticsearch.action.get.GetRequest;
 import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.index.IndexRequest;
@@ -16,8 +19,10 @@ import org.elasticsearch.action.update.UpdateResponse;
 import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestClient;
 import org.elasticsearch.client.RestHighLevelClient;
+import org.elasticsearch.rest.RestStatus;
 
 public class ManagerDao {
+
     RestHighLevelClient client;
 
     public ManagerDao() {
@@ -25,8 +30,8 @@ public class ManagerDao {
                 RestClient.builder(new HttpHost("localhost", 9200, "http"))
         );
     }
-    
-    public void index(){
+
+    public void index() {
         HashMap<String, Object> jsonMap = new HashMap<>();
         jsonMap.put("user", "eric");
         jsonMap.put("postDate", new Date());
@@ -36,26 +41,26 @@ public class ManagerDao {
         try {
             IndexResponse indexResponse = client.index(indexRequest, RequestOptions.DEFAULT);
         } catch (IOException ex) {
-            Logger.getLogger(ManagerDao.class.getName()).log(Level.SEVERE, null, ex);
+            System.out.println(ex.getMessage());
         }
     }
-    
-    public String get() throws Exception{
+
+    public String get() throws Exception {
         String s;
         GetRequest getRequest = new GetRequest(
-        "posts", 
-        "2"); 
+                "posts",
+                "2");
         try {
             GetResponse getResponse = client.get(getRequest, RequestOptions.DEFAULT);
             s = getResponse.getSourceAsString();
         } catch (IOException ex) {
-            Logger.getLogger(ManagerDao.class.getName()).log(Level.SEVERE, null, ex);
-            s="";
+            System.out.println(ex.getMessage());
+            s = "";
         }
         return s;
     }
-    
-    public void update(){
+
+    public void update() {
         HashMap<String, Object> jsonMap = new HashMap<>();
         jsonMap.put("updated", new Date());
         jsonMap.put("message", "trying on Elasticsearch");
@@ -64,11 +69,26 @@ public class ManagerDao {
         try {
             UpdateResponse updateResponse = client.update(updateRequest, RequestOptions.DEFAULT);
         } catch (IOException ex) {
-            Logger.getLogger(ManagerDao.class.getName()).log(Level.SEVERE, null, ex);
+            System.out.println(ex.getMessage());
         }
     }
-    
-    public void close(){
+
+    public void delete()  {
+        DeleteRequest request = new DeleteRequest("posts", "1");
+        try {
+            DeleteResponse deleteResponse = client.delete(
+                    request,
+                    RequestOptions.DEFAULT);
+        } catch (ElasticsearchException exception) {
+            if (exception.status() == RestStatus.CONFLICT) {
+                System.out.println("hola");
+            }
+        } catch (IOException ex) {
+            System.out.println(ex.getMessage());
+        }
+    }
+
+    public void close() {
         try {
             client.close();
         } catch (IOException ex) {
