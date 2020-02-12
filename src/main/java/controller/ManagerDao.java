@@ -1,20 +1,24 @@
 package controller;
 
-
-import org.elasticsearch.*;
-import org.elasticsearch.client.transport.TransportClient;
-import org.elasticsearch.xpack.client.PreBuiltXPackTransportClient;
-import org.elasticsearch.xpack.core.XPackClient;
-import org.elasticsearch.xpack.core.XPackPlugin;
-import org.elasticsearch.core.watcher.client.WatcherClient;
+import java.io.IOException;
+import org.apache.http.HttpHost;
+import org.elasticsearch.client.RestClient;
+import org.elasticsearch.client.RestHighLevelClient;
 
 public class ManagerDao {
-    private Client client;
 
     public ManagerDao() {
-        this.client = new PreBuiltTransportClient(
-                Settings.builder().put("client.transport.sniff", true)
-                        .put("cluster.name", "elasticsearch").build())
-                .addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName("127.0.0.1"), 9300));
+        RestHighLevelClient client = new RestHighLevelClient(
+                RestClient.builder(
+                        new HttpHost("localhost", 9200, "http"),
+                        new HttpHost("localhost", 9201, "http")
+                )
+        );
+
+        try {
+            client.close();
+        } catch (IOException ex) {
+            System.out.println(ex.getMessage());
+        }
     }
 }
