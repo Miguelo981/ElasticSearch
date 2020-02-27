@@ -5,7 +5,11 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import modelo.Empleado;
 import org.elasticsearch.action.DocWriteRequest;
+import org.elasticsearch.action.get.GetRequest;
 import org.elasticsearch.action.index.IndexRequest;
 
 /**
@@ -71,7 +75,7 @@ public class Vista {
         jsonMap.put("phone", InputAsker.askString("Phone number: ", 8));
         jsonMap.put("dni", InputAsker.askDNI("DNI: "));
         int id = 0;
-        IndexRequest indexRequest = new IndexRequest("users").id(Integer.toString(id)).source(jsonMap).opType(DocWriteRequest.OpType.CREATE);
+        IndexRequest indexRequest = new IndexRequest("userss").id(Integer.toString(id)).source(jsonMap).opType(DocWriteRequest.OpType.CREATE);
         if (managerDao.index(indexRequest)) {
             System.out.println("Usuario " + user + " creado con exito!");
         }
@@ -79,6 +83,12 @@ public class Vista {
     }
 
     private static void login() {
-
+        try {
+            managerDao.getEmpleado();
+            Empleado empleado = managerDao.getEmpleado(new GetRequest("userss", "0"));
+            System.out.print(empleado.toString());
+        } catch (Exception ex) {
+            Logger.getLogger(Vista.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 }
