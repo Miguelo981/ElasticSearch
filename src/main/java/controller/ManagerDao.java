@@ -76,12 +76,14 @@ public class ManagerDao {
 
     public Empleado getEmpleado(GetRequest getRequest) throws Exception {
         GetResponse response = client.get(getRequest, RequestOptions.DEFAULT);
-        System.out.print(response.getSourceAsString());
-        String user = (String) response.getField("user").getValue();
-        String name = (String) response.getField("name").getValue();
-        String surname = (String) response.getField("surname").getValue();
-        String phone = (String) response.getField("phone").getValue();
-        String dni = (String) response.getField("dni").getValue();
+        //System.out.print(response.getSourceAsString());
+        //System.out.println(response.getSource().toString());
+        //System.out.println(response.getSource().get("user"));
+        String user = (String) response.getSource().get("user");
+        String name = (String) response.getSource().get("name");
+        String surname = (String) response.getSource().get("surname");
+        String phone = (String) response.getSource().get("phone");
+        String dni = (String) response.getSource().get("dni");
         return new Empleado(user, name, surname, phone, dni);
 
     }

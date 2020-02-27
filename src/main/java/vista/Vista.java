@@ -86,7 +86,7 @@ public class Vista {
         try {
             managerDao.getEmpleado();
             Empleado empleado = managerDao.getEmpleado(new GetRequest("userss", "0"));
-            System.out.print(empleado.toString());
+            System.out.println(empleado.toString());
         } catch (Exception ex) {
             Logger.getLogger(Vista.class.getName()).log(Level.SEVERE, null, ex);
         }
