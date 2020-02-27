@@ -63,7 +63,6 @@ public class Empleado {
 
     @Override
     public String toString() {
-        return "Empleado{" + "usuario=" + usuario + ", nombre=" + nombre + ", apellidos=" + apellidos + ", telefono=" + telefono + ", dni=" + dni + '}';
+        return "Empleado -> " + "usuario=" + usuario + ", nombre=" + nombre + ", apellidos=" + apellidos + ", telefono=" + telefono + ", dni=" + dni;
     }
-
 }
