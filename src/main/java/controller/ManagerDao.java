@@ -88,7 +88,7 @@ public class ManagerDao {
 
     public Empleado getEmpleado() {
         SearchRequest searchRequest = new SearchRequest();
-        searchRequest.indices("userss");
+        searchRequest.indices("users");
         SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder(); 
         MatchQueryBuilder matchQueryBuilder = new MatchQueryBuilder("user", "Omar"); 
         searchSourceBuilder.query(matchQueryBuilder);

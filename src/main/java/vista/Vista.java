@@ -7,6 +7,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import modelo.DAOInterfaceImpl;
 import modelo.Empleado;
 import org.elasticsearch.action.DocWriteRequest;
 import org.elasticsearch.action.get.GetRequest;
@@ -19,8 +20,10 @@ import org.elasticsearch.action.index.IndexRequest;
 public class Vista {
 
     private static ManagerDao managerDao;
+    private static DAOInterfaceImpl daoInterfaceImpl;
 
     public static void main(String[] args) {
+        daoInterfaceImpl = DAOInterfaceImpl.getInstance();
         menuConsola();
         // mD.index();
         /*String get = mD.get();

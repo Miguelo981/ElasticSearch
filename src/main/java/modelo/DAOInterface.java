@@ -1,12 +1,12 @@
 package modelo;
-import enums.Evento;
 import java.util.List;
+import modelo.enums.Evento;
 
 /**
  *
  * @author mfontana
  */
-public interface DAOInterface {
+public abstract interface DAOInterface {
 
     // Método para insertar un nuevo empleado.
     public void insertEmpleado(Empleado e);
