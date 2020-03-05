@@ -79,18 +79,18 @@ public class ManagerDao {
     }
 
     //public Empleado getEmpleado(GetFieldMappingsRequest  getRequest) throws Exception {
-    public void getEmpleado(SearchRequest  getRequest) throws Exception {
+    public void getEmpleado(SearchRequest getRequest) throws Exception {
         SearchResponse response = client.search(getRequest, RequestOptions.DEFAULT);
-        
+
         //GetResponse response = client.get(getRequest, RequestOptions.DEFAULT);
         System.out.print(response.getHits().getAt(0).getSourceAsString());
     }
 
-    public Empleado getEmpleado() {
+    public Empleado getEmpleado(String user) {
         SearchRequest searchRequest = new SearchRequest();
         searchRequest.indices("users");
-        SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder(); 
-        MatchQueryBuilder matchQueryBuilder = new MatchQueryBuilder("user", "Omar"); 
+        SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
+        MatchQueryBuilder matchQueryBuilder = new MatchQueryBuilder("user", user);
         searchSourceBuilder.query(matchQueryBuilder);
         System.out.println(searchRequest.source(searchSourceBuilder));
         return null;
@@ -106,10 +106,17 @@ public class ManagerDao {
         return false;
     }
 
-    public void update() {
+    public void update(Empleado e) {
         HashMap<String, Object> jsonMap = new HashMap<>();
-        jsonMap.put("updated", new Date());
-        jsonMap.put("message", "trying on Elasticsearch");
+        jsonMap.put("user", e.getUsuario());
+        jsonMap.put("name", e.getNombre());
+        jsonMap.put("pass", e.getPassword());
+        jsonMap.put("surname", e.getApellidos());
+        jsonMap.put("phone", e.getTelefono());
+        jsonMap.put("dni", e.getDni());
+        
+        //jsonMap.put("updated", new Date());
+        //jsonMap.put("message", "trying on Elasticsearch");
         UpdateRequest updateRequest = new UpdateRequest("posts", "2")
                 .doc(jsonMap);
         try {
@@ -119,8 +126,8 @@ public class ManagerDao {
         }
     }
 
-    public void delete() {
-        DeleteRequest request = new DeleteRequest("users", "1");
+    public void delete(String id) {
+        DeleteRequest request = new DeleteRequest("users", id);
         try {
             DeleteResponse deleteResponse = client.delete(
                     request,

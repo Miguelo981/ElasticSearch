@@ -28,6 +28,7 @@ public class DAOInterfaceImpl implements DAOInterface {
     private static DAOInterfaceImpl daoInterfaceImpl = null;
     private static ManagerDao managerDao;
 
+
     private DAOInterfaceImpl() {
         managerDao = ManagerDao.getManagerDao();
     }
@@ -72,12 +73,14 @@ public class DAOInterfaceImpl implements DAOInterface {
     }
 
     @Override
-    public void updateEmpleado(Empleado e) {
+    public void updateEmpleado(Empleado e) {  
+        managerDao.update(e);
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
     public void removeEmpleado(Empleado e) {
+        managerDao.delete(e.getPassword());
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
