@@ -11,14 +11,18 @@ package modelo;
  */
 public class Empleado {
 
-    private String usuario, nombre, apellidos, telefono, dni;
+    private String usuario, nombre, apellidos, telefono, dni, password;
 
-    public Empleado(String usuario, String nombre, String apellidos, String telefono, String dni) {
+    public Empleado() {
+    }
+
+    public Empleado(String usuario, String nombre, String apellidos, String telefono, String dni, String password) {
         this.usuario = usuario;
         this.nombre = nombre;
         this.apellidos = apellidos;
         this.telefono = telefono;
         this.dni = dni;
+        this.password = password;
     }
 
     public String getUsuario() {
@@ -59,6 +63,14 @@ public class Empleado {
 
     public void setDni(String dni) {
         this.dni = dni;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
     }
 
     @Override

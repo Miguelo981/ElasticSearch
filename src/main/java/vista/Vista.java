@@ -19,7 +19,6 @@ import org.elasticsearch.action.index.IndexRequest;
  */
 public class Vista {
 
-    private static ManagerDao managerDao;
     private static DAOInterfaceImpl daoInterfaceImpl;
 
     public static void main(String[] args) {
@@ -40,7 +39,6 @@ public class Vista {
 
     public static void menuConsola() {
         Boolean response = false;
-        managerDao = ManagerDao.getManagerDao();
         do {
             switch (InputAsker.askInt(menu())) {
                 case 1:
@@ -53,18 +51,15 @@ public class Vista {
                     response = true;
                     break;
             }
-            /*response = hotelManager.managerMenu(answer);
-                    if (!response.equals("false") && !response.equals("true")) {
-                        System.out.println(Color.messageMaker(Color.getColorByMessage(response.split(" ")[0]), response));
-                    }*/
         } while (!response);
+        daoInterfaceImpl.close();
     }
 
     private static void register() {
-        HashMap<String, Object> jsonMap = new HashMap<>();
-        String user = InputAsker.askString("User name: ");
-        jsonMap.put("user", user);
-        jsonMap.put("name", InputAsker.askString("Name: "));
+        Empleado e = new Empleado();
+        String user = InputAsker.askString("Username: ");
+        e.setUsuario(user);
+        e.setNombre(InputAsker.askString("Name: "));
         String pass = "", pass2 = "";
         do {
             pass = InputAsker.askString("Insert password: (8 digits maximum)", 8);
@@ -73,25 +68,14 @@ public class Vista {
                 System.out.println("Passwords does not match.");
             }
         } while (!pass.equals(pass2));
-        jsonMap.put("pass", pass);
-        jsonMap.put("surname", InputAsker.askString("Surname: "));
-        jsonMap.put("phone", InputAsker.askString("Phone number: ", 8));
-        jsonMap.put("dni", InputAsker.askDNI("DNI: "));
-        int id = 0;
-        IndexRequest indexRequest = new IndexRequest("userss").id(Integer.toString(id)).source(jsonMap).opType(DocWriteRequest.OpType.CREATE);
-        if (managerDao.index(indexRequest)) {
-            System.out.println("Usuario " + user + " creado con exito!");
-        }
-
+        e.setPassword(pass);
+        e.setApellidos(InputAsker.askString("Surname: "));
+        e.setTelefono(InputAsker.askString("Phone number: ", 8));
+        e.setDni(InputAsker.askDNI("DNI: "));
+        daoInterfaceImpl.insertEmpleado(e);
     }
 
     private static void login() {
-        try {
-            managerDao.getEmpleado();
-            Empleado empleado = managerDao.getEmpleado(new GetRequest("userss", "0"));
-            System.out.print(empleado.toString());
-        } catch (Exception ex) {
-            Logger.getLogger(Vista.class.getName()).log(Level.SEVERE, null, ex);
-        }
+        daoInterfaceImpl.loginEmpleado(InputAsker.askString("Username: "), InputAsker.askString("Insert password"));
     }
 }

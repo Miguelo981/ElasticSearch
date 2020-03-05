@@ -53,5 +53,7 @@ public abstract interface DAOInterface {
     // Obtener el ranking de los empleados por cantidad de incidencias
     // urgentes creadas (más incidencias urgentes primero).
     public List<RankingTO> getRankingEmpleados();
+    
+    public void close();
 
 }

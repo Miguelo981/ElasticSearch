@@ -8,6 +8,8 @@ import modelo.Empleado;
 import org.apache.http.HttpHost;
 import org.elasticsearch.ElasticsearchException;
 import org.elasticsearch.ElasticsearchStatusException;
+import org.elasticsearch.action.admin.indices.mapping.get.GetFieldMappingsRequest;
+import org.elasticsearch.action.admin.indices.mapping.get.GetFieldMappingsResponse;
 import org.elasticsearch.action.delete.DeleteRequest;
 import org.elasticsearch.action.delete.DeleteResponse;
 import org.elasticsearch.action.get.GetRequest;
@@ -15,6 +17,7 @@ import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.index.IndexResponse;
 import org.elasticsearch.action.search.SearchRequest;
+import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.update.UpdateRequest;
 import org.elasticsearch.action.update.UpdateResponse;
 import org.elasticsearch.client.RequestOptions;
@@ -22,6 +25,7 @@ import org.elasticsearch.client.RestClient;
 import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.common.document.DocumentField;
 import org.elasticsearch.index.query.MatchQueryBuilder;
+import static org.elasticsearch.rest.RestRequest.request;
 import org.elasticsearch.rest.RestStatus;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 
@@ -74,16 +78,12 @@ public class ManagerDao {
         return null;
     }
 
-    public Empleado getEmpleado(GetRequest getRequest) throws Exception {
-        GetResponse response = client.get(getRequest, RequestOptions.DEFAULT);
-        System.out.print(response.getSourceAsString());
-        String user = (String) response.getField("user").getValue();
-        String name = (String) response.getField("name").getValue();
-        String surname = (String) response.getField("surname").getValue();
-        String phone = (String) response.getField("phone").getValue();
-        String dni = (String) response.getField("dni").getValue();
-        return new Empleado(user, name, surname, phone, dni);
-
+    //public Empleado getEmpleado(GetFieldMappingsRequest  getRequest) throws Exception {
+    public void getEmpleado(SearchRequest  getRequest) throws Exception {
+        SearchResponse response = client.search(getRequest, RequestOptions.DEFAULT);
+        
+        //GetResponse response = client.get(getRequest, RequestOptions.DEFAULT);
+        System.out.print(response.getHits().getAt(0).getSourceAsString());
     }
 
     public Empleado getEmpleado() {
