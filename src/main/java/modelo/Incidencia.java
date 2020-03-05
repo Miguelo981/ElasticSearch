@@ -5,7 +5,7 @@
  */
 package modelo;
 
-import enums.Tipo;
+import modelo.enums.Tipo;
 import java.time.LocalDate;
 
 /**
