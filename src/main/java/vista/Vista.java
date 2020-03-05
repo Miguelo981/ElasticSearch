@@ -47,9 +47,6 @@ public class Vista {
                 case 2:
                     register();
                     break;
-                case 3:
-                    daoInterfaceImpl.selectAllIncidencias();
-                    break;
                 case 0:
                     response = true;
                     break;
