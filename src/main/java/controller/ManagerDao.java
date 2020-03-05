@@ -1,10 +1,16 @@
 package controller;
 
 import java.io.IOException;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import modelo.Empleado;
+import modelo.Incidencia;
+import modelo.enums.Tipo;
 import org.apache.http.HttpHost;
 import org.elasticsearch.ElasticsearchException;
 import org.elasticsearch.ElasticsearchStatusException;
@@ -27,6 +33,7 @@ import org.elasticsearch.common.document.DocumentField;
 import org.elasticsearch.index.query.MatchQueryBuilder;
 import static org.elasticsearch.rest.RestRequest.request;
 import org.elasticsearch.rest.RestStatus;
+import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 
 public class ManagerDao {
@@ -96,6 +103,32 @@ public class ManagerDao {
         return null;
     }
 
+    public List<Incidencia> getAllIncidents() {
+        List<Incidencia> incidencias = new ArrayList<>();
+        try {
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MMM-dd");
+            SearchRequest searchRequest = new SearchRequest();
+            searchRequest.indices("incidents");
+            SearchResponse searchResponse = client.search(searchRequest, RequestOptions.DEFAULT);
+
+            SearchHit[] results = searchResponse.getHits().getHits();
+            for (SearchHit hit : results) {
+                String sourceAsString = hit.getSourceAsString();
+                Map<String, Object> incidents = hit.getSourceAsMap();
+                LocalDate date = LocalDate.parse(incidents.get("date").toString(), formatter);
+
+                Incidencia i = new Incidencia(date, incidents.get("origin").toString(),
+                        incidents.get("destination").toString(), incidents.get("detail").toString(), getPlatoType(incidents.get("type").toString()));
+                incidencias.add(i);
+                System.out.println("source: " + sourceAsString);
+            }
+
+        } catch (IOException ex) {
+            System.out.println(ex.getMessage());
+        }
+        return incidencias;
+    }
+
     public boolean checkUserExists(String userName) {
         GetRequest getRequest = new GetRequest("users", "2");
         try {
@@ -114,7 +147,7 @@ public class ManagerDao {
         jsonMap.put("surname", e.getApellidos());
         jsonMap.put("phone", e.getTelefono());
         jsonMap.put("dni", e.getDni());
-        
+
         //jsonMap.put("updated", new Date());
         //jsonMap.put("message", "trying on Elasticsearch");
         UpdateRequest updateRequest = new UpdateRequest("posts", "2")
@@ -124,6 +157,16 @@ public class ManagerDao {
         } catch (IOException ex) {
             System.out.println(ex.getMessage());
         }
+    }
+
+    public Tipo getPlatoType(String tipo) {
+        switch (tipo.toUpperCase()) {
+            case "URGENTE":
+                return Tipo.URGENTE;
+            case "NORMAL":
+                return Tipo.NORMAL;
+        }
+        return null;
     }
 
     public void delete(String id) {

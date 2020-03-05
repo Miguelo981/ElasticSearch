@@ -13,10 +13,14 @@ import java.time.LocalDate;
  * @author alu2018262
  */
 public class Incidencia {
-    
+
     private LocalDate fecha;
     private String orgien, destino, detalle;
     private Tipo tipo;
+
+    public Incidencia() {
+
+    }
 
     public Incidencia(LocalDate fecha, String orgien, String destino, String detalle, Tipo tipo) {
         this.fecha = fecha;
