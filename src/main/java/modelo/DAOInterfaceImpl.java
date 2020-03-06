@@ -48,23 +48,10 @@ public class DAOInterfaceImpl implements DAOInterface {
         jsonMap.put("surname", e.getApellidos());
         jsonMap.put("phone", e.getTelefono());
         jsonMap.put("dni", e.getDni());
-        
-        IndexRequest indexRequest = new IndexRequest("users").source(jsonMap).opType(DocWriteRequest.OpType.CREATE);
+        int id = 0;
+        IndexRequest indexRequest = new IndexRequest("users").id(Integer.toString(id)).source(jsonMap).opType(DocWriteRequest.OpType.CREATE);
         if (managerDao.index(indexRequest)) {
             System.out.println("Usuario " + e.getUsuario() + " creado con exito!");
-        }
-    }
-    
-    public void tryGetEmpleado(){
-        try {
-            SearchSourceBuilder sourceBuilder = new SearchSourceBuilder();
-            sourceBuilder.query(QueryBuilders.matchAllQuery());
-            SearchRequest searchRequest = new SearchRequest();
-            searchRequest.indices("posts");
-            searchRequest.source(sourceBuilder);
-            managerDao.getTryEmpleado(searchRequest);
-        } catch (Exception ex) {
-            System.out.println(ex.getMessage());
         }
     }
 
@@ -74,7 +61,7 @@ public class DAOInterfaceImpl implements DAOInterface {
             SearchSourceBuilder sourceBuilder = new SearchSourceBuilder();
             sourceBuilder.query(QueryBuilders.termQuery("user", user));
             SearchRequest searchRequest = new SearchRequest();
-            searchRequest.indices("posts");
+            searchRequest.indices("users");
             searchRequest.source(sourceBuilder);
             managerDao.getEmpleado(searchRequest);
             return true;
@@ -86,27 +73,43 @@ public class DAOInterfaceImpl implements DAOInterface {
 
     @Override
     public void updateEmpleado(Empleado e) {
+        managerDao.update(e);
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
     public void removeEmpleado(Empleado e) {
+        managerDao.delete(e.getPassword());
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
     public Incidencia getIncidenciaById(int id) {
+        
+        
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
     public List<Incidencia> selectAllIncidencias() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        managerDao.getAllIncidents();
+        
+        return null;
     }
 
     @Override
     public void insertIncidencia(Incidencia i) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        HashMap<String, Object> jsonMap = new HashMap<>();
+        jsonMap.put("date", i.getFecha());
+        jsonMap.put("origin", i.getOrgien());
+        jsonMap.put("destination", i.getDestino());
+        jsonMap.put("detail", i.getDetalle());
+        jsonMap.put("type", i.getTipo().name());
+        int id = 0;
+        IndexRequest indexRequest = new IndexRequest("incidents").id(Integer.toString(id)).source(jsonMap).opType(DocWriteRequest.OpType.CREATE);
+        if (managerDao.index(indexRequest)) {
+            System.out.println("Incidencia de tipo " + i.getTipo().name() + " creada con exito!");
+        }
     }
 
     @Override
@@ -121,7 +124,16 @@ public class DAOInterfaceImpl implements DAOInterface {
 
     @Override
     public void insertarEvento(Evento e) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        HashMap<String, Object> jsonMap = new HashMap<>();
+        /**
+         * jsonMap.put("type", i.getFecha()); 
+         * jsonMap.put("date", i.getOrgien()); jsonMap.put("employe", i.getDestino());
+         */
+        int id = 0;
+        IndexRequest indexRequest = new IndexRequest("events").id(Integer.toString(id)).source(jsonMap).opType(DocWriteRequest.OpType.CREATE);
+        if (managerDao.index(indexRequest)) {
+            System.out.println("Evento de tipo " + e.name() + " creado con exito!");
+        }
     }
 
     @Override
