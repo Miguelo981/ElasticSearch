@@ -27,6 +27,7 @@ import org.elasticsearch.common.document.DocumentField;
 import org.elasticsearch.index.query.MatchQueryBuilder;
 import static org.elasticsearch.rest.RestRequest.request;
 import org.elasticsearch.rest.RestStatus;
+import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 
 public class ManagerDao {
@@ -59,19 +60,10 @@ public class ManagerDao {
     }
 
     public Map<String, DocumentField> get(GetRequest getRequest) throws Exception {
-        String s;
+
         try {
             GetResponse getResponse = client.get(getRequest, RequestOptions.DEFAULT);
-            s = getResponse.getSourceAsString();
-            //client = ESclient.getInstant();
-            //client.get
-            /*GetResponse response = client.prepareGet("user", "tenth", "1")
-                    .setOperationThreaded(false)
-                    .get();*/
-            if (getResponse != null) {
-                //Map<String,DocumentField> FieldsMap
-                return getResponse.getFields();
-            }
+            Map<String, Object> sourceAsMap = getResponse.getSourceAsMap();
         } catch (IOException ex) {
             System.out.println(ex.getMessage());
         }
@@ -83,17 +75,25 @@ public class ManagerDao {
         SearchResponse response = client.search(getRequest, RequestOptions.DEFAULT);
         
         //GetResponse response = client.get(getRequest, RequestOptions.DEFAULT);
-        System.out.print(response.getHits().getAt(0).getSourceAsString());
+        System.out.println(response.getHits().getAt(0).getSourceAsString());
+        Map<String, Object> sourceAsMap = response.getHits().getAt(0).getSourceAsMap();
+                
     }
-
-    public Empleado getEmpleado() {
-        SearchRequest searchRequest = new SearchRequest();
-        searchRequest.indices("users");
-        SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder(); 
-        MatchQueryBuilder matchQueryBuilder = new MatchQueryBuilder("user", "Omar"); 
-        searchSourceBuilder.query(matchQueryBuilder);
-        System.out.println(searchRequest.source(searchSourceBuilder));
-        return null;
+    
+    public void getTryEmpleado(SearchRequest  getRequest) throws Exception {
+        SearchResponse response = client.search(getRequest, RequestOptions.DEFAULT);
+        
+        //GetResponse response = client.get(getRequest, RequestOptions.DEFAULT);
+        System.out.println(response.getHits().getAt(0).getSourceAsString());
+        SearchHit[] hits = response.getHits().getHits();
+        int maxId = 0;
+        for (SearchHit hit : hits){
+            int id = Integer.parseInt(hit.getId());
+            if(id > maxId){
+                maxId = id;
+            }
+        }
+        System.out.println(maxId);
     }
 
     public boolean checkUserExists(String userName) {

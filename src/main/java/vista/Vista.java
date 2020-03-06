@@ -47,6 +47,9 @@ public class Vista {
                 case 2:
                     register();
                     break;
+                case 3:
+                    daoInterfaceImpl.tryGetEmpleado();
+                    break;
                 case 0:
                     response = true;
                     break;
@@ -60,7 +63,7 @@ public class Vista {
         String user = InputAsker.askString("Username: ");
         e.setUsuario(user);
         e.setNombre(InputAsker.askString("Name: "));
-        String pass = "", pass2 = "";
+        String pass, pass2;
         do {
             pass = InputAsker.askString("Insert password: (8 digits maximum)", 8);
             pass2 = InputAsker.askString("Confirm password: ", 8);
