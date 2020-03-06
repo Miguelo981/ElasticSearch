@@ -31,6 +31,7 @@ import org.elasticsearch.client.RestClient;
 import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.common.document.DocumentField;
 import org.elasticsearch.index.query.MatchQueryBuilder;
+import org.elasticsearch.index.query.QueryBuilders;
 import static org.elasticsearch.rest.RestRequest.request;
 import org.elasticsearch.rest.RestStatus;
 import org.elasticsearch.search.SearchHit;
@@ -90,17 +91,21 @@ public class ManagerDao {
         SearchResponse response = client.search(getRequest, RequestOptions.DEFAULT);
 
         //GetResponse response = client.get(getRequest, RequestOptions.DEFAULT);
-        System.out.print(response.getHits().getAt(0).getSourceAsString());
+        System.out.print(response.getHits().getAt(0).getSourceAsMap());
     }
 
-    public Empleado getEmpleado(String user) {
-        SearchRequest searchRequest = new SearchRequest();
-        searchRequest.indices("users");
-        SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
-        MatchQueryBuilder matchQueryBuilder = new MatchQueryBuilder("user", user);
-        searchSourceBuilder.query(matchQueryBuilder);
-        System.out.println(searchRequest.source(searchSourceBuilder));
-        return null;
+    public int getTryEmpleado(SearchRequest searchRequest) throws Exception {
+        SearchResponse response = client.search(searchRequest, RequestOptions.DEFAULT);
+        
+        SearchHit[] results = response.getHits().getHits();
+        int maxId = 0;
+        for(SearchHit h : results){
+            int actualId = Integer.parseInt(h.getId());
+            if (actualId>maxId){
+                maxId = actualId;
+            }
+        }
+        return maxId;
     }
 
     public List<Incidencia> getAllIncidents() {

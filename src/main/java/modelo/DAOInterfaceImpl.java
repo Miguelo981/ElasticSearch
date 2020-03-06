@@ -48,11 +48,30 @@ public class DAOInterfaceImpl implements DAOInterface {
         jsonMap.put("surname", e.getApellidos());
         jsonMap.put("phone", e.getTelefono());
         jsonMap.put("dni", e.getDni());
-        int id = 0;
-        IndexRequest indexRequest = new IndexRequest("users").id(Integer.toString(id)).source(jsonMap).opType(DocWriteRequest.OpType.CREATE);
+        int id = getID();
+        IndexRequest indexRequest = new IndexRequest("users").id(String.valueOf(id)).source(jsonMap).opType(DocWriteRequest.OpType.CREATE);
         if (managerDao.index(indexRequest)) {
             System.out.println("Usuario " + e.getUsuario() + " creado con exito!");
         }
+    }
+    
+    public int getID(){
+        int id = 0;
+        try {
+            SearchSourceBuilder sourceBuilder = new SearchSourceBuilder();
+            sourceBuilder.query(QueryBuilders.matchAllQuery());
+            SearchRequest searchRequest = new SearchRequest();
+            searchRequest.indices("users");
+            searchRequest.source(sourceBuilder);
+            id = managerDao.getTryEmpleado(searchRequest);
+        } catch (Exception ex) {
+            System.out.println(ex.getMessage());
+        }
+        return id+1;
+    }
+    
+    public void deleteEmpleado(){
+        
     }
 
     @Override

@@ -1,17 +1,7 @@
 package vista;
 
-import controller.ManagerDao;
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import modelo.DAOInterfaceImpl;
 import modelo.Empleado;
-import org.elasticsearch.action.DocWriteRequest;
-import org.elasticsearch.action.get.GetRequest;
-import org.elasticsearch.action.index.IndexRequest;
 
 /**
  *
@@ -47,12 +37,26 @@ public class Vista {
                 case 2:
                     register();
                     break;
+                case 3:
+                    tryCaso();
+                    break;
+                case 4:
+                    cleanEmpleados();
+                    break;
                 case 0:
                     response = true;
                     break;
             }
         } while (!response);
         daoInterfaceImpl.close();
+    }
+    
+    public static void cleanEmpleados(){
+        daoInterfaceImpl.getID();
+    }
+    
+    public static void tryCaso(){
+        System.out.println(daoInterfaceImpl.getID());
     }
 
     private static void register() {
