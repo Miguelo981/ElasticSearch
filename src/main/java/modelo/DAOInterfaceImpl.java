@@ -54,8 +54,8 @@ public class DAOInterfaceImpl implements DAOInterface {
             System.out.println("Usuario " + e.getUsuario() + " creado con exito!");
         }
     }
-    
-    public int getID(){
+
+    public int getID() {
         int id = 0;
         try {
             SearchSourceBuilder sourceBuilder = new SearchSourceBuilder();
@@ -67,11 +67,7 @@ public class DAOInterfaceImpl implements DAOInterface {
         } catch (Exception ex) {
             System.out.println(ex.getMessage());
         }
-        return id+1;
-    }
-    
-    public void deleteEmpleado(){
-        
+        return id + 1;
     }
 
     @Override
@@ -93,27 +89,21 @@ public class DAOInterfaceImpl implements DAOInterface {
     @Override
     public void updateEmpleado(Empleado e) {
         managerDao.update(e);
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
     public void removeEmpleado(Empleado e) {
-        managerDao.delete(e.getPassword());
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        managerDao.delete(e);
     }
 
     @Override
     public Incidencia getIncidenciaById(int id) {
-        
-        
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return managerDao.getIncidentByID(id);
     }
 
     @Override
     public List<Incidencia> selectAllIncidencias() {
-        managerDao.getAllIncidents();
-        
-        return null;
+        return managerDao.getAllIncidents();
     }
 
     @Override
@@ -145,8 +135,8 @@ public class DAOInterfaceImpl implements DAOInterface {
     public void insertarEvento(Evento e) {
         HashMap<String, Object> jsonMap = new HashMap<>();
         /**
-         * jsonMap.put("type", i.getFecha()); 
-         * jsonMap.put("date", i.getOrgien()); jsonMap.put("employe", i.getDestino());
+         * jsonMap.put("type", i.getFecha()); jsonMap.put("date",
+         * i.getOrgien()); jsonMap.put("employe", i.getDestino());
          */
         int id = 0;
         IndexRequest indexRequest = new IndexRequest("events").id(Integer.toString(id)).source(jsonMap).opType(DocWriteRequest.OpType.CREATE);

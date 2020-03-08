@@ -96,12 +96,12 @@ public class ManagerDao {
 
     public int getTryEmpleado(SearchRequest searchRequest) throws Exception {
         SearchResponse response = client.search(searchRequest, RequestOptions.DEFAULT);
-        
+
         SearchHit[] results = response.getHits().getHits();
         int maxId = 0;
-        for(SearchHit h : results){
+        for (SearchHit h : results) {
             int actualId = Integer.parseInt(h.getId());
-            if (actualId>maxId){
+            if (actualId > maxId) {
                 maxId = actualId;
             }
         }
@@ -111,7 +111,7 @@ public class ManagerDao {
     public List<Incidencia> getAllIncidents() {
         List<Incidencia> incidencias = new ArrayList<>();
         try {
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MMM-dd");
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
             SearchRequest searchRequest = new SearchRequest();
             searchRequest.indices("incidents");
             SearchResponse searchResponse = client.search(searchRequest, RequestOptions.DEFAULT);
@@ -145,20 +145,31 @@ public class ManagerDao {
     }
 
     public void update(Empleado e) {
-        HashMap<String, Object> jsonMap = new HashMap<>();
-        jsonMap.put("user", e.getUsuario());
-        jsonMap.put("name", e.getNombre());
-        jsonMap.put("pass", e.getPassword());
-        jsonMap.put("surname", e.getApellidos());
-        jsonMap.put("phone", e.getTelefono());
-        jsonMap.put("dni", e.getDni());
-
-        //jsonMap.put("updated", new Date());
-        //jsonMap.put("message", "trying on Elasticsearch");
-        UpdateRequest updateRequest = new UpdateRequest("posts", "2")
-                .doc(jsonMap);
         try {
-            UpdateResponse updateResponse = client.update(updateRequest, RequestOptions.DEFAULT);
+            HashMap<String, Object> jsonMap = new HashMap<>();
+            jsonMap.put("user", e.getUsuario());
+            jsonMap.put("name", e.getNombre());
+            jsonMap.put("pass", e.getPassword());
+            jsonMap.put("surname", e.getApellidos());
+            jsonMap.put("phone", e.getTelefono());
+            jsonMap.put("dni", e.getDni());
+
+            SearchRequest searchRequest = new SearchRequest();
+            searchRequest.indices("users");
+            SearchResponse searchResponse = client.search(searchRequest, RequestOptions.DEFAULT);
+
+            SearchHit[] results = searchResponse.getHits().getHits();
+            for (SearchHit hit : results) {
+                String sourceAsString = hit.getSourceAsString();
+                Map<String, Object> usuarios = hit.getSourceAsMap();
+                if (usuarios.get("user").toString().equals("testUsuario")) {
+                    UpdateRequest updateRequest = new UpdateRequest("users", hit.getId())
+                            .doc(jsonMap);
+                    UpdateResponse updateResponse = client.update(updateRequest, RequestOptions.DEFAULT);
+                } else {
+                    System.out.println(usuarios.get("user").toString());
+                }
+            }
         } catch (IOException ex) {
             System.out.println(ex.getMessage());
         }
@@ -174,12 +185,21 @@ public class ManagerDao {
         return null;
     }
 
-    public void delete(String id) {
-        DeleteRequest request = new DeleteRequest("users", id);
+    public void delete(Empleado e) {
         try {
-            DeleteResponse deleteResponse = client.delete(
-                    request,
-                    RequestOptions.DEFAULT);
+            SearchRequest searchRequest = new SearchRequest();
+            searchRequest.indices("users");
+            SearchResponse searchResponse = client.search(searchRequest, RequestOptions.DEFAULT);
+
+            SearchHit[] results = searchResponse.getHits().getHits();
+            for (SearchHit hit : results) {
+                String sourceAsString = hit.getSourceAsString();
+                Map<String, Object> usuarios = hit.getSourceAsMap();
+                if (usuarios.get("user").toString().equals("pepe")) {
+                    DeleteRequest deleterequest = new DeleteRequest("users", hit.getId());
+                    DeleteResponse deleteResponse = client.delete(deleterequest, RequestOptions.DEFAULT);
+                }
+            }
         } catch (ElasticsearchException exception) {
             if (exception.status() == RestStatus.CONFLICT) {
                 System.out.println("hola");
@@ -187,6 +207,32 @@ public class ManagerDao {
         } catch (IOException ex) {
             System.out.println(ex.getMessage());
         }
+    }
+
+    public Incidencia getIncidentByID(int id) {
+        Incidencia i = null;
+        try {
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+            SearchRequest searchRequest = new SearchRequest();
+            searchRequest.indices("incidents");
+            SearchResponse searchResponse = client.search(searchRequest, RequestOptions.DEFAULT);
+
+            SearchHit[] results = searchResponse.getHits().getHits();
+            for (SearchHit hit : results) {
+                String sourceAsString = hit.getSourceAsString();
+                Map<String, Object> incidents = hit.getSourceAsMap();
+                if (hit.getId().equals(String.valueOf(id))) {
+                    LocalDate date = LocalDate.parse(incidents.get("date").toString(), formatter);
+                    i = new Incidencia(date, incidents.get("origin").toString(),
+                            incidents.get("destination").toString(), incidents.get("detail").toString(), getPlatoType(incidents.get("type").toString()));
+                    return i;
+                }
+            }
+        } catch (IOException ex) {
+            System.out.println(ex.getMessage());
+        }
+
+        return i;
     }
 
     public void close() {

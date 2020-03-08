@@ -1,7 +1,10 @@
 package vista;
 
+import java.time.LocalDate;
 import modelo.DAOInterfaceImpl;
 import modelo.Empleado;
+import modelo.Incidencia;
+import modelo.enums.Tipo;
 
 /**
  *
@@ -43,6 +46,18 @@ public class Vista {
                 case 4:
                     cleanEmpleados();
                     break;
+                case 5:
+                    updateEmpleado();
+                    break;
+                case 6:
+                    deleteEmpleado();
+                    break;
+                case 7:
+                    insertarIncidencia();
+                    break;
+                case 8:
+                    incidenciaByID();
+                    break;
                 case 0:
                     response = true;
                     break;
@@ -50,12 +65,12 @@ public class Vista {
         } while (!response);
         daoInterfaceImpl.close();
     }
-    
-    public static void cleanEmpleados(){
+
+    public static void cleanEmpleados() {
         daoInterfaceImpl.getID();
     }
-    
-    public static void tryCaso(){
+
+    public static void tryCaso() {
         System.out.println(daoInterfaceImpl.getID());
     }
 
@@ -80,7 +95,34 @@ public class Vista {
     }
 
     private static void insertarIncidencia() {
+        Incidencia i = new Incidencia();
+        i.setFecha(LocalDate.now());
+        i.setOrgien(InputAsker.askString("Origin: "));
+        i.setDestino(InputAsker.askString("Destination: "));
+        i.setDetalle(InputAsker.askString("Detail: "));
+        i.setTipo(getPlatoType(InputAsker.askString("Type: ")));
+        daoInterfaceImpl.insertIncidencia(i);
+    }
+
+    private static void incidenciaByID() {
+        int id = InputAsker.askInt("ID: ");
+        System.out.println(daoInterfaceImpl.getIncidenciaById(id).toString());
+    }
+
+    //Moverlo a otro sitio
+    public static Tipo getPlatoType(String tipo) {
+        switch (tipo.toUpperCase()) {
+            case "URGENTE":
+                return Tipo.URGENTE;
+            case "NORMAL":
+                return Tipo.NORMAL;
+        }
+        return null;
+    }
+
+    private static void updateEmpleado() {
         Empleado e = new Empleado();
+        System.out.println("============================\n     UPDATE YOUR INFO     \n============================");
         String user = InputAsker.askString("Username: ");
         e.setUsuario(user);
         e.setNombre(InputAsker.askString("Name: "));
@@ -96,7 +138,15 @@ public class Vista {
         e.setApellidos(InputAsker.askString("Surname: "));
         e.setTelefono(InputAsker.askString("Phone number: ", 8));
         e.setDni(InputAsker.askDNI("DNI: "));
-        daoInterfaceImpl.insertEmpleado(e);
+        System.out.println("============================");
+        //Falta pasar por parametro el empleado conectado
+        daoInterfaceImpl.updateEmpleado(e);
+    }
+
+    private static void deleteEmpleado() {
+        Empleado e = new Empleado();
+        //Falta pasar por parametro el empleado conectado
+        daoInterfaceImpl.removeEmpleado(e);
     }
 
     private static void login() {
