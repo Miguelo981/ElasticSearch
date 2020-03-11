@@ -11,7 +11,6 @@ import modelo.Empleado;
 import modelo.Incidencia;
 import modelo.enums.Tipo;
 import org.apache.http.HttpHost;
-import org.elasticsearch.ElasticsearchException;
 import org.elasticsearch.ElasticsearchStatusException;
 import org.elasticsearch.action.delete.DeleteRequest;
 import org.elasticsearch.action.delete.DeleteResponse;
@@ -24,7 +23,6 @@ import org.elasticsearch.action.update.UpdateResponse;
 import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestClient;
 import org.elasticsearch.client.RestHighLevelClient;
-import org.elasticsearch.rest.RestStatus;
 import org.elasticsearch.search.SearchHit;
 
 public class ManagerDao {
@@ -122,7 +120,7 @@ public class ManagerDao {
                     String sourceAsString = hit.getSourceAsString();
                     LocalDate date = LocalDate.parse(incidents.get("date").toString(), formatter);
                     Incidencia i = new Incidencia(date, incidents.get("origin").toString(),
-                            incidents.get("destination").toString(), incidents.get("detail").toString(), getPlatoType(incidents.get("type").toString()));
+                            incidents.get("destination").toString(), incidents.get("detail").toString(), getIncidentType(incidents.get("type").toString()));
                     incidencias.add(i);
                 }
             }
@@ -148,7 +146,7 @@ public class ManagerDao {
                     LocalDate date = LocalDate.parse(incidents.get("date").toString(), formatter);
 
                     Incidencia i = new Incidencia(date, incidents.get("origin").toString(),
-                            incidents.get("destination").toString(), incidents.get("detail").toString(), getPlatoType(incidents.get("type").toString()));
+                            incidents.get("destination").toString(), incidents.get("detail").toString(), getIncidentType(incidents.get("type").toString()));
                     incidencias.add(i);
                 }
             }
