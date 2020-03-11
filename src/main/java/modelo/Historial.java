@@ -5,7 +5,7 @@
  */
 package modelo;
 
-import enums.Evento;
+import modelo.enums.Evento;
 import java.time.LocalDate;
 
 /**

@@ -1,16 +1,10 @@
 package vista;
 
-import controller.ManagerDao;
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.time.LocalDate;
+import modelo.DAOInterfaceImpl;
 import modelo.Empleado;
-import org.elasticsearch.action.DocWriteRequest;
-import org.elasticsearch.action.get.GetRequest;
-import org.elasticsearch.action.index.IndexRequest;
+import modelo.Incidencia;
+import modelo.enums.Tipo;
 
 /**
  *
@@ -18,9 +12,10 @@ import org.elasticsearch.action.index.IndexRequest;
  */
 public class Vista {
 
-    private static ManagerDao managerDao;
+    private static DAOInterfaceImpl daoInterfaceImpl;
 
     public static void main(String[] args) {
+        daoInterfaceImpl = DAOInterfaceImpl.getInstance();
         menuConsola();
         // mD.index();
         /*String get = mD.get();
@@ -37,7 +32,6 @@ public class Vista {
 
     public static void menuConsola() {
         Boolean response = false;
-        managerDao = ManagerDao.getManagerDao();
         do {
             switch (InputAsker.askInt(menu())) {
                 case 1:
@@ -46,22 +40,45 @@ public class Vista {
                 case 2:
                     register();
                     break;
+                case 3:
+                    tryCaso();
+                    break;
+                case 4:
+                    cleanEmpleados();
+                    break;
+                case 5:
+                    updateEmpleado();
+                    break;
+                case 6:
+                    deleteEmpleado();
+                    break;
+                case 7:
+                    insertarIncidencia();
+                    break;
+                case 8:
+                    incidenciaByID();
+                    break;
                 case 0:
                     response = true;
                     break;
             }
-            /*response = hotelManager.managerMenu(answer);
-                    if (!response.equals("false") && !response.equals("true")) {
-                        System.out.println(Color.messageMaker(Color.getColorByMessage(response.split(" ")[0]), response));
-                    }*/
         } while (!response);
+        daoInterfaceImpl.close();
+    }
+
+    public static void cleanEmpleados() {
+        daoInterfaceImpl.getID();
+    }
+
+    public static void tryCaso() {
+        System.out.println(daoInterfaceImpl.getID());
     }
 
     private static void register() {
-        HashMap<String, Object> jsonMap = new HashMap<>();
-        String user = InputAsker.askString("User name: ");
-        jsonMap.put("user", user);
-        jsonMap.put("name", InputAsker.askString("Name: "));
+        Empleado e = new Empleado();
+        String user = InputAsker.askString("Username: ");
+        e.setUsuario(user);
+        e.setNombre(InputAsker.askString("Name: "));
         String pass = "", pass2 = "";
         do {
             pass = InputAsker.askString("Insert password: (8 digits maximum)", 8);
@@ -70,26 +87,69 @@ public class Vista {
                 System.out.println("Passwords does not match.");
             }
         } while (!pass.equals(pass2));
-        jsonMap.put("pass", pass);
-        jsonMap.put("surname", InputAsker.askString("Surname: "));
-        jsonMap.put("phone", InputAsker.askString("Phone number: ", 8));
-        jsonMap.put("dni", InputAsker.askDNI("DNI: "));
-        int id = 0;
-        IndexRequest indexRequest = new IndexRequest("userss").id(Integer.toString(id)).source(jsonMap).opType(DocWriteRequest.OpType.CREATE);
-        if (managerDao.index(indexRequest)) {
-            System.out.println("Usuario " + user + " creado con exito!");
-        }
+        e.setPassword(pass);
+        e.setApellidos(InputAsker.askString("Surname: "));
+        e.setTelefono(InputAsker.askString("Phone number: ", 8));
+        e.setDni(InputAsker.askDNI("DNI: "));
+        daoInterfaceImpl.insertEmpleado(e);
+    }
 
+    private static void insertarIncidencia() {
+        Incidencia i = new Incidencia();
+        i.setFecha(LocalDate.now());
+        i.setOrgien(InputAsker.askString("Origin: "));
+        i.setDestino(InputAsker.askString("Destination: "));
+        i.setDetalle(InputAsker.askString("Detail: "));
+        i.setTipo(getPlatoType(InputAsker.askString("Type: ")));
+        daoInterfaceImpl.insertIncidencia(i);
+    }
+
+    private static void incidenciaByID() {
+        int id = InputAsker.askInt("ID: ");
+        System.out.println(daoInterfaceImpl.getIncidenciaById(id).toString());
+    }
+
+    //Moverlo a otro sitio
+    public static Tipo getPlatoType(String tipo) {
+        switch (tipo.toUpperCase()) {
+            case "URGENTE":
+                return Tipo.URGENTE;
+            case "NORMAL":
+                return Tipo.NORMAL;
+        }
+        return null;
+    }
+
+    private static void updateEmpleado() {
+        Empleado e = new Empleado();
+        System.out.println("============================\n     UPDATE YOUR INFO     \n============================");
+        String user = InputAsker.askString("Username: ");
+        e.setUsuario(user);
+        e.setNombre(InputAsker.askString("Name: "));
+        String pass = "", pass2 = "";
+        do {
+            pass = InputAsker.askString("Insert password: (8 digits maximum)", 8);
+            pass2 = InputAsker.askString("Confirm password: ", 8);
+            if (!pass.equals(pass2)) {
+                System.out.println("Passwords does not match.");
+            }
+        } while (!pass.equals(pass2));
+        e.setPassword(pass);
+        e.setApellidos(InputAsker.askString("Surname: "));
+        e.setTelefono(InputAsker.askString("Phone number: ", 8));
+        e.setDni(InputAsker.askDNI("DNI: "));
+        System.out.println("============================");
+        //Falta pasar por parametro el empleado conectado
+        daoInterfaceImpl.updateEmpleado(e);
+    }
+
+    private static void deleteEmpleado() {
+        Empleado e = new Empleado();
+        //Falta pasar por parametro el empleado conectado
+        daoInterfaceImpl.removeEmpleado(e);
     }
 
     private static void login() {
-        try {
-            managerDao.getEmpleado();
-            new GetRequest
-            Empleado empleado = managerDao.getEmpleado(new GetRequest("userss", "0"));
-            System.out.println(empleado.toString());
-        } catch (Exception ex) {
-            Logger.getLogger(Vista.class.getName()).log(Level.SEVERE, null, ex);
-        }
+        daoInterfaceImpl.loginEmpleado(InputAsker.askString("Username: "), InputAsker.askString("Insert password"));
     }
 }
