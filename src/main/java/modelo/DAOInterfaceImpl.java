@@ -124,12 +124,12 @@ public class DAOInterfaceImpl implements DAOInterface {
 
     @Override
     public List<Incidencia> getIncidenciaByDestino(Empleado e) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return managerDao.getIncidentsByDestination(e.getUsuario());
     }
 
     @Override
     public List<Incidencia> getIncidenciaByOrigen(Empleado e) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return managerDao.getIncidentsByOrigin(e.getUsuario());
     }
 
     @Override

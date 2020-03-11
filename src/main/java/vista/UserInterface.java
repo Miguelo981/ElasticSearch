@@ -61,7 +61,6 @@ public class UserInterface {
         System.out.println(daoInterfaceImpl.getIncidenciaById(id).toString());
     }
     
-    //Moverlo a otro sitio
     public Tipo getTipo(String tipo) {
         switch (tipo.toUpperCase()) {
             case "URGENTE":
