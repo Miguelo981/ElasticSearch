@@ -48,14 +48,14 @@ public class DAOInterfaceImpl implements DAOInterface {
         jsonMap.put("surname", e.getApellidos());
         jsonMap.put("phone", e.getTelefono());
         jsonMap.put("dni", e.getDni());
-        int id = getID();
+        int id = getEmployeeID();
         IndexRequest indexRequest = new IndexRequest("users").id(String.valueOf(id)).source(jsonMap).opType(DocWriteRequest.OpType.CREATE);
         if (managerDao.index(indexRequest)) {
             System.out.println("Usuario " + e.getUsuario() + " creado con exito!");
         }
     }
 
-    public int getID() {
+    public int getEmployeeID() {
         int id = 0;
         try {
             SearchSourceBuilder sourceBuilder = new SearchSourceBuilder();
@@ -106,6 +106,21 @@ public class DAOInterfaceImpl implements DAOInterface {
     public List<Incidencia> selectAllIncidencias() {
         return managerDao.getAllIncidents();
     }
+    
+    public int getIncidentID() {
+        int id = 0;
+        try {
+            SearchSourceBuilder sourceBuilder = new SearchSourceBuilder();
+            sourceBuilder.query(QueryBuilders.matchAllQuery());
+            SearchRequest searchRequest = new SearchRequest();
+            searchRequest.indices("incidents");
+            searchRequest.source(sourceBuilder);
+            id = managerDao.getTryEmpleado(searchRequest);
+        } catch (Exception ex) {
+            System.out.println(ex.getMessage());
+        }
+        return id + 1;
+    }
 
     @Override
     public void insertIncidencia(Incidencia i) {
@@ -115,8 +130,7 @@ public class DAOInterfaceImpl implements DAOInterface {
         jsonMap.put("destination", i.getDestino());
         jsonMap.put("detail", i.getDetalle());
         jsonMap.put("type", i.getTipo().name());
-        int id = 0;
-        IndexRequest indexRequest = new IndexRequest("incidents").id(Integer.toString(id)).source(jsonMap).opType(DocWriteRequest.OpType.CREATE);
+        IndexRequest indexRequest = new IndexRequest("incidents").id(Integer.toString(getIncidentID())).source(jsonMap).opType(DocWriteRequest.OpType.CREATE);
         if (managerDao.index(indexRequest)) {
             System.out.println("Incidencia de tipo " + i.getTipo().name() + " creada con exito!");
         }
