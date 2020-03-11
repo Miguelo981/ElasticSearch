@@ -107,6 +107,57 @@ public class ManagerDao {
         return incidencias;
     }
 
+    public List<Incidencia> getIncidentsByOrigin(String e) {
+        List<Incidencia> incidencias = new ArrayList<>();
+        try {
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+            SearchRequest searchRequest = new SearchRequest();
+            searchRequest.indices("incidents");
+            SearchResponse searchResponse = client.search(searchRequest, RequestOptions.DEFAULT);
+
+            SearchHit[] results = searchResponse.getHits().getHits();
+            for (SearchHit hit : results) {
+                Map<String, Object> incidents = hit.getSourceAsMap();
+                if (incidents.get("origin").toString().equals(e)) {
+                    String sourceAsString = hit.getSourceAsString();
+                    LocalDate date = LocalDate.parse(incidents.get("date").toString(), formatter);
+                    Incidencia i = new Incidencia(date, incidents.get("origin").toString(),
+                            incidents.get("destination").toString(), incidents.get("detail").toString(), getPlatoType(incidents.get("type").toString()));
+                    incidencias.add(i);
+                }
+            }
+        } catch (IOException ex) {
+            System.out.println(ex.getMessage());
+        }
+        return incidencias;
+    }
+
+    public List<Incidencia> getIncidentsByDestination(String e) {
+        List<Incidencia> incidencias = new ArrayList<>();
+        try {
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+            SearchRequest searchRequest = new SearchRequest();
+            searchRequest.indices("incidents");
+            SearchResponse searchResponse = client.search(searchRequest, RequestOptions.DEFAULT);
+
+            SearchHit[] results = searchResponse.getHits().getHits();
+            for (SearchHit hit : results) {
+                Map<String, Object> incidents = hit.getSourceAsMap();
+                if (incidents.get("destination").toString().equals(e)) {
+                    String sourceAsString = hit.getSourceAsString();
+                    LocalDate date = LocalDate.parse(incidents.get("date").toString(), formatter);
+
+                    Incidencia i = new Incidencia(date, incidents.get("origin").toString(),
+                            incidents.get("destination").toString(), incidents.get("detail").toString(), getPlatoType(incidents.get("type").toString()));
+                    incidencias.add(i);
+                }
+            }
+        } catch (IOException ex) {
+            System.out.println(ex.getMessage());
+        }
+        return incidencias;
+    }
+
     public boolean checkUserExists(SearchRequest searchRequest) {
         try {
             SearchResponse searchResponse = client.search(searchRequest, RequestOptions.DEFAULT);
