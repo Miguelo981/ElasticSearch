@@ -29,7 +29,7 @@ public class Vista {
     private static String menu() {
         return "1.- Login.\n2.- Register.\n0.- Exit";
     }
-
+    
     public static void menuConsola() {
         Boolean response = false;
         do {
@@ -150,6 +150,8 @@ public class Vista {
     }
 
     private static void login() {
-        daoInterfaceImpl.loginEmpleado(InputAsker.askString("Username: "), InputAsker.askString("Insert password"));
+        if (daoInterfaceImpl.loginEmpleado(InputAsker.askString("Username: "), InputAsker.askString("Insert password: ")) != null) {
+            
+        }
     }
 }

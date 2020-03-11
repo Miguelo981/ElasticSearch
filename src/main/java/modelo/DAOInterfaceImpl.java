@@ -52,6 +52,8 @@ public class DAOInterfaceImpl implements DAOInterface {
         IndexRequest indexRequest = new IndexRequest("users").id(String.valueOf(id)).source(jsonMap).opType(DocWriteRequest.OpType.CREATE);
         if (managerDao.index(indexRequest)) {
             System.out.println("Usuario " + e.getUsuario() + " creado con exito!");
+        } else {
+            System.out.println("Error al crear usuario!");
         }
     }
 
@@ -69,21 +71,20 @@ public class DAOInterfaceImpl implements DAOInterface {
         }
         return id + 1;
     }
-
+    
     @Override
-    public boolean loginEmpleado(String user, String pass) {
+    public Empleado loginEmpleado(String user, String pass) {
         try {
             SearchSourceBuilder sourceBuilder = new SearchSourceBuilder();
             sourceBuilder.query(QueryBuilders.termQuery("user", user));
             SearchRequest searchRequest = new SearchRequest();
             searchRequest.indices("users");
             searchRequest.source(sourceBuilder);
-            managerDao.getEmpleado(searchRequest);
-            return true;
+            return managerDao.getEmpleado(searchRequest);
         } catch (Exception ex) {
             System.out.println(ex.getMessage());
         }
-        return false;
+        return null;
     }
 
     @Override

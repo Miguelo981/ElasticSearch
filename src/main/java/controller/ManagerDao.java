@@ -87,11 +87,12 @@ public class ManagerDao {
     }
 
     //public Empleado getEmpleado(GetFieldMappingsRequest  getRequest) throws Exception {
-    public void getEmpleado(SearchRequest getRequest) throws Exception {
+    public Empleado getEmpleado(SearchRequest getRequest) throws Exception {
         SearchResponse response = client.search(getRequest, RequestOptions.DEFAULT);
 
         //GetResponse response = client.get(getRequest, RequestOptions.DEFAULT);
-        System.out.print(response.getHits().getAt(0).getSourceAsMap());
+        Map<String, Object> e = response.getHits().getAt(0).getSourceAsMap();
+        return new Empleado(e.get(""));
     }
 
     public int getTryEmpleado(SearchRequest searchRequest) throws Exception {
