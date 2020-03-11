@@ -8,12 +8,8 @@ package modelo;
 import controller.ManagerDao;
 import java.util.HashMap;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import modelo.enums.Evento;
 import org.elasticsearch.action.DocWriteRequest;
-import org.elasticsearch.action.admin.indices.mapping.get.GetFieldMappingsRequest;
-import org.elasticsearch.action.get.GetRequest;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.index.query.QueryBuilders;
@@ -41,17 +37,26 @@ public class DAOInterfaceImpl implements DAOInterface {
 
     @Override
     public void insertEmpleado(Empleado e) {
-        HashMap<String, Object> jsonMap = new HashMap<>();
-        jsonMap.put("user", e.getUsuario());
-        jsonMap.put("name", e.getNombre());
-        jsonMap.put("pass", e.getPassword());
-        jsonMap.put("surname", e.getApellidos());
-        jsonMap.put("phone", e.getTelefono());
-        jsonMap.put("dni", e.getDni());
-        int id = getEmployeeID();
-        IndexRequest indexRequest = new IndexRequest("users").id(String.valueOf(id)).source(jsonMap).opType(DocWriteRequest.OpType.CREATE);
-        if (managerDao.index(indexRequest)) {
-            System.out.println("Usuario " + e.getUsuario() + " creado con exito!");
+        SearchSourceBuilder sourceBuilder = new SearchSourceBuilder();
+        sourceBuilder.query(QueryBuilders.termQuery("user", e.getUsuario()));
+        SearchRequest searchRequest = new SearchRequest();
+        searchRequest.indices("users");
+        searchRequest.source(sourceBuilder);
+        if (!managerDao.checkUserExists(searchRequest)) {
+            HashMap<String, Object> jsonMap = new HashMap<>();
+            jsonMap.put("user", e.getUsuario());
+            jsonMap.put("name", e.getNombre());
+            jsonMap.put("pass", e.getPassword());
+            jsonMap.put("surname", e.getApellidos());
+            jsonMap.put("phone", e.getTelefono());
+            jsonMap.put("dni", e.getDni());
+            int id = getEmployeeID();
+            IndexRequest indexRequest = new IndexRequest("users").id(String.valueOf(id)).source(jsonMap).opType(DocWriteRequest.OpType.CREATE);
+            if (managerDao.index(indexRequest)) {
+                System.out.println("User " + e.getUsuario() + " created successfully");
+            }
+        } else {
+            System.out.println("User already exists.");
         }
     }
 
@@ -63,7 +68,7 @@ public class DAOInterfaceImpl implements DAOInterface {
             SearchRequest searchRequest = new SearchRequest();
             searchRequest.indices("users");
             searchRequest.source(sourceBuilder);
-            id = managerDao.getTryEmpleado(searchRequest);
+            id = managerDao.getID(searchRequest);
         } catch (Exception ex) {
             System.out.println(ex.getMessage());
         }
@@ -89,12 +94,24 @@ public class DAOInterfaceImpl implements DAOInterface {
 
     @Override
     public void updateEmpleado(Empleado e) {
-        managerDao.update(e);
+        HashMap<String, Object> jsonMap = new HashMap<>();
+        jsonMap.put("user", e.getUsuario());
+        jsonMap.put("name", e.getNombre());
+        jsonMap.put("pass", e.getPassword());
+        jsonMap.put("surname", e.getApellidos());
+        jsonMap.put("phone", e.getTelefono());
+        jsonMap.put("dni", e.getDni());
+
+        SearchRequest searchRequest = new SearchRequest();
+        searchRequest.indices("users");
+        managerDao.updateEmpleado(searchRequest, jsonMap);
     }
 
     @Override
     public void removeEmpleado(Empleado e) {
-        managerDao.delete(e);
+        SearchRequest searchRequest = new SearchRequest();
+        searchRequest.indices("users");
+        managerDao.delete(searchRequest, e.getUsuario());
     }
 
     @Override
@@ -106,7 +123,7 @@ public class DAOInterfaceImpl implements DAOInterface {
     public List<Incidencia> selectAllIncidencias() {
         return managerDao.getAllIncidents();
     }
-    
+
     public int getIncidentID() {
         int id = 0;
         try {
@@ -115,7 +132,7 @@ public class DAOInterfaceImpl implements DAOInterface {
             SearchRequest searchRequest = new SearchRequest();
             searchRequest.indices("incidents");
             searchRequest.source(sourceBuilder);
-            id = managerDao.getTryEmpleado(searchRequest);
+            id = managerDao.getID(searchRequest);
         } catch (Exception ex) {
             System.out.println(ex.getMessage());
         }

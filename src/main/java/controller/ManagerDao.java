@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -14,12 +13,8 @@ import modelo.enums.Tipo;
 import org.apache.http.HttpHost;
 import org.elasticsearch.ElasticsearchException;
 import org.elasticsearch.ElasticsearchStatusException;
-import org.elasticsearch.action.admin.indices.mapping.get.GetFieldMappingsRequest;
-import org.elasticsearch.action.admin.indices.mapping.get.GetFieldMappingsResponse;
 import org.elasticsearch.action.delete.DeleteRequest;
 import org.elasticsearch.action.delete.DeleteResponse;
-import org.elasticsearch.action.get.GetRequest;
-import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.index.IndexResponse;
 import org.elasticsearch.action.search.SearchRequest;
@@ -29,13 +24,8 @@ import org.elasticsearch.action.update.UpdateResponse;
 import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestClient;
 import org.elasticsearch.client.RestHighLevelClient;
-import org.elasticsearch.common.document.DocumentField;
-import org.elasticsearch.index.query.MatchQueryBuilder;
-import org.elasticsearch.index.query.QueryBuilders;
-import static org.elasticsearch.rest.RestRequest.request;
 import org.elasticsearch.rest.RestStatus;
 import org.elasticsearch.search.SearchHit;
-import org.elasticsearch.search.builder.SearchSourceBuilder;
 
 public class ManagerDao {
 
@@ -66,40 +56,20 @@ public class ManagerDao {
         return false;
     }
 
-    public Map<String, DocumentField> get(GetRequest getRequest) throws Exception {
-        String s;
-        try {
-            GetResponse getResponse = client.get(getRequest, RequestOptions.DEFAULT);
-            s = getResponse.getSourceAsString();
-            //client = ESclient.getInstant();
-            //client.get
-            /*GetResponse response = client.prepareGet("user", "tenth", "1")
-                    .setOperationThreaded(false)
-                    .get();*/
-            if (getResponse != null) {
-                //Map<String,DocumentField> FieldsMap
-                return getResponse.getFields();
-            }
-        } catch (IOException ex) {
-            System.out.println(ex.getMessage());
-        }
-        return null;
-    }
-
     //public Empleado getEmpleado(GetFieldMappingsRequest  getRequest) throws Exception {
     public Empleado getEmpleado(SearchRequest getRequest) throws Exception {
         SearchResponse response = client.search(getRequest, RequestOptions.DEFAULT);
 
         //GetResponse response = client.get(getRequest, RequestOptions.DEFAULT);
         Map<String, Object> sourceAsMap = response.getHits().getAt(0).getSourceAsMap();
-        Empleado e = new Empleado((String) sourceAsMap.get("user"), 
-                (String) sourceAsMap.get("name"), (String) sourceAsMap.get("surname"), 
-                (String) sourceAsMap.get("phone"), (String) sourceAsMap.get("dni"), 
+        Empleado e = new Empleado((String) sourceAsMap.get("user"),
+                (String) sourceAsMap.get("name"), (String) sourceAsMap.get("surname"),
+                (String) sourceAsMap.get("phone"), (String) sourceAsMap.get("dni"),
                 (String) sourceAsMap.get("pass"));
         return e;
     }
 
-    public int getTryEmpleado(SearchRequest searchRequest) throws Exception {
+    public int getID(SearchRequest searchRequest) throws Exception {
         SearchResponse response = client.search(searchRequest, RequestOptions.DEFAULT);
 
         SearchHit[] results = response.getHits().getHits();
@@ -123,12 +93,11 @@ public class ManagerDao {
 
             SearchHit[] results = searchResponse.getHits().getHits();
             for (SearchHit hit : results) {
-                String sourceAsString = hit.getSourceAsString();
                 Map<String, Object> incidents = hit.getSourceAsMap();
                 LocalDate date = LocalDate.parse(incidents.get("date").toString(), formatter);
 
                 Incidencia i = new Incidencia(date, incidents.get("origin").toString(),
-                        incidents.get("destination").toString(), incidents.get("detail").toString(), getPlatoType(incidents.get("type").toString()));
+                        incidents.get("destination").toString(), incidents.get("detail").toString(), getIncidentType(incidents.get("type").toString()));
                 incidencias.add(i);
             }
 
@@ -138,40 +107,30 @@ public class ManagerDao {
         return incidencias;
     }
 
-    public boolean checkUserExists(String userName) {
-        GetRequest getRequest = new GetRequest("users", "2");
+    public boolean checkUserExists(SearchRequest searchRequest) {
         try {
-            GetResponse getResponse = client.get(getRequest, RequestOptions.DEFAULT);
+            SearchResponse searchResponse = client.search(searchRequest, RequestOptions.DEFAULT);
+            SearchHit[] hits = searchResponse.getHits().getHits();
+            if (hits.length==0) {
+                return false;
+            }
         } catch (IOException ex) {
             System.out.println(ex.getMessage());
         }
-        return false;
+        return true;
     }
 
-    public void update(Empleado e) {
+    public void updateEmpleado(SearchRequest searchRequest, HashMap<String, Object> jsonMap) {
         try {
-            HashMap<String, Object> jsonMap = new HashMap<>();
-            jsonMap.put("user", e.getUsuario());
-            jsonMap.put("name", e.getNombre());
-            jsonMap.put("pass", e.getPassword());
-            jsonMap.put("surname", e.getApellidos());
-            jsonMap.put("phone", e.getTelefono());
-            jsonMap.put("dni", e.getDni());
-
-            SearchRequest searchRequest = new SearchRequest();
-            searchRequest.indices("users");
             SearchResponse searchResponse = client.search(searchRequest, RequestOptions.DEFAULT);
 
             SearchHit[] results = searchResponse.getHits().getHits();
             for (SearchHit hit : results) {
-                String sourceAsString = hit.getSourceAsString();
                 Map<String, Object> usuarios = hit.getSourceAsMap();
-                if (usuarios.get("user").toString().equals("testUsuario")) {
+                if (usuarios.get("user").toString().equals(jsonMap.get("user"))) {
                     UpdateRequest updateRequest = new UpdateRequest("users", hit.getId())
                             .doc(jsonMap);
                     UpdateResponse updateResponse = client.update(updateRequest, RequestOptions.DEFAULT);
-                } else {
-                    System.out.println(usuarios.get("user").toString());
                 }
             }
         } catch (IOException ex) {
@@ -179,7 +138,7 @@ public class ManagerDao {
         }
     }
 
-    public Tipo getPlatoType(String tipo) {
+    public Tipo getIncidentType(String tipo) {
         switch (tipo.toUpperCase()) {
             case "URGENTE":
                 return Tipo.URGENTE;
@@ -189,24 +148,17 @@ public class ManagerDao {
         return null;
     }
 
-    public void delete(Empleado e) {
+    public void delete(SearchRequest searchRequest, String user) {
         try {
-            SearchRequest searchRequest = new SearchRequest();
-            searchRequest.indices("users");
             SearchResponse searchResponse = client.search(searchRequest, RequestOptions.DEFAULT);
 
             SearchHit[] results = searchResponse.getHits().getHits();
             for (SearchHit hit : results) {
-                String sourceAsString = hit.getSourceAsString();
                 Map<String, Object> usuarios = hit.getSourceAsMap();
-                if (usuarios.get("user").toString().equals("pepe")) {
+                if (usuarios.get("user").toString().equals(user)) {
                     DeleteRequest deleterequest = new DeleteRequest("users", hit.getId());
                     DeleteResponse deleteResponse = client.delete(deleterequest, RequestOptions.DEFAULT);
                 }
-            }
-        } catch (ElasticsearchException exception) {
-            if (exception.status() == RestStatus.CONFLICT) {
-                System.out.println("hola");
             }
         } catch (IOException ex) {
             System.out.println(ex.getMessage());
@@ -228,14 +180,13 @@ public class ManagerDao {
                 if (hit.getId().equals(String.valueOf(id))) {
                     LocalDate date = LocalDate.parse(incidents.get("date").toString(), formatter);
                     i = new Incidencia(date, incidents.get("origin").toString(),
-                            incidents.get("destination").toString(), incidents.get("detail").toString(), getPlatoType(incidents.get("type").toString()));
+                            incidents.get("destination").toString(), incidents.get("detail").toString(), getIncidentType(incidents.get("type").toString()));
                     return i;
                 }
             }
         } catch (IOException ex) {
             System.out.println(ex.getMessage());
         }
-
         return i;
     }
 
