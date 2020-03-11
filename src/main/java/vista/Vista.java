@@ -29,9 +29,9 @@ public class Vista {
     }
 
     private static String menu() {
-        return "1 - Login.\n2 - Register.\n0 - Exit";
+        return "1 - Login.\n0 - Exit";
     }
-    
+
     public static void menuConsola() {
         Boolean response = false;
         do {
@@ -95,14 +95,24 @@ public class Vista {
         //Falta pasar por parametro el empleado conectado
         daoInterfaceImpl.removeEmpleado(e);
     }
-    
+
     //TODO INSERT EVENTO
     private static void login() {
-        Empleado e = daoInterfaceImpl.loginEmpleado(InputAsker.askString("Username: "), InputAsker.askString("Insert password"));
-        if(e!=null){
-            daoInterfaceImpl.insertarEvento(new Evento(TipoEvento.I, LocalDate.now(), e.getUsuario()));
-            UserInterface userInterface = new UserInterface();
-            userInterface.MenuUsuario(e, daoInterfaceImpl);
+        Empleado e = null;
+        String username = InputAsker.askString("Username: ");
+        String password = InputAsker.askString("Insert password");
+        UserInterface userInterface = new UserInterface();
+        if (username.equals("admin") && password.equals("admin")) {
+            e = new Empleado();
+            e.setUsuario(username);
+            e.setPassword(password);
+            userInterface.menuUsuario(e, daoInterfaceImpl);
+        } else {
+            e = daoInterfaceImpl.loginEmpleado(username, password);
+            if (e != null) {
+                daoInterfaceImpl.insertarEvento(new Evento(TipoEvento.I, LocalDate.now(), e.getUsuario()));
+                userInterface.menuUsuario(e, daoInterfaceImpl);
+            }
         }
     }
 }

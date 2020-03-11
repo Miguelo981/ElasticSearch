@@ -38,11 +38,11 @@ public class Incidencia {
         this.fecha = fecha;
     }
 
-    public String getOrgien() {
+    public String getOrigen() {
         return orgien;
     }
 
-    public void setOrgien(String orgien) {
+    public void setOrigen(String orgien) {
         this.orgien = orgien;
     }
 

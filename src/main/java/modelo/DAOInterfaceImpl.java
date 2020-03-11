@@ -172,18 +172,31 @@ public class DAOInterfaceImpl implements DAOInterface {
 
     @Override
     public void insertIncidencia(Incidencia i) {
-        HashMap<String, Object> jsonMap = new HashMap<>();
-        jsonMap.put("date", i.getFecha());
-        jsonMap.put("origin", i.getOrgien());
-        jsonMap.put("destination", i.getDestino());
-        jsonMap.put("detail", i.getDetalle());
-        jsonMap.put("type", i.getTipo().name());
-        IndexRequest indexRequest = new IndexRequest("incidents").id(Integer.toString(getIncidentID())).source(jsonMap).opType(DocWriteRequest.OpType.CREATE);
-        if (managerDao.index(indexRequest)) {
-            System.out.println("Incidencia de tipo " + i.getTipo().name() + " creada con exito!");
-            if (i.getTipo().equals(Tipo.URGENTE)) {
-                insertarEvento(new Evento(TipoEvento.U, LocalDate.now(), i.getOrgien()));
+        SearchSourceBuilder sourceBuilder = new SearchSourceBuilder();
+        sourceBuilder.query(QueryBuilders.termQuery("user", i.getDestino()));
+        SearchRequest searchRequest = new SearchRequest();
+        searchRequest.indices("users");
+        searchRequest.source(sourceBuilder);
+        if (managerDao.checkUserExists(searchRequest)) {
+            if (!i.getOrigen().equals(i.getDestino())) {
+                HashMap<String, Object> jsonMap = new HashMap<>();
+                jsonMap.put("date", i.getFecha());
+                jsonMap.put("origin", i.getOrigen());
+                jsonMap.put("destination", i.getDestino());
+                jsonMap.put("detail", i.getDetalle());
+                jsonMap.put("type", i.getTipo().name());
+                IndexRequest indexRequest = new IndexRequest("incidents").id(Integer.toString(getIncidentID())).source(jsonMap).opType(DocWriteRequest.OpType.CREATE);
+                if (managerDao.index(indexRequest)) {
+                    System.out.println("Incidencia de tipo " + i.getTipo().name() + " creada con exito!");
+                    if (i.getTipo().equals(Tipo.URGENTE)) {
+                        insertarEvento(new Evento(TipoEvento.U, LocalDate.now(), i.getOrigen()));
+                    }
+                }
+            } else {
+                System.out.println("No puede ser el mismo usuario de origen ");
             }
+        } else {
+            System.out.println("Usuario de destino no existe");
         }
     }
 

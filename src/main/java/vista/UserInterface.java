@@ -10,33 +10,36 @@ import modelo.DAOInterfaceImpl;
 import modelo.Empleado;
 import modelo.Incidencia;
 import modelo.enums.Tipo;
-import static vista.Vista.cleanEmpleados;
-import static vista.Vista.tryCaso;
 
 /**
  *
  * @author alu2018240
  */
 public class UserInterface {
+
     private DAOInterfaceImpl daoInterfaceImpl;
 
     public UserInterface() {
     }
-    
-    public void MenuUsuario(Empleado e, DAOInterfaceImpl impl){
+
+    public void menuUsuario(Empleado e, DAOInterfaceImpl impl) {
         Boolean response = false;
         daoInterfaceImpl = impl;
         do {
             if (e.getUsuario().equals("admin") && e.getPassword().equals("admin")) {
                 switch (InputAsker.askInt(menuAdmin())) {
                     case 1:
-                        insertarIncidencia();
+                        insertarIncidencia(e);
                         break;
                     case 2:
                         incidenciaByID();
                         break;
                     case 3:
                         registEmpleado();
+                        break;
+                    case 4:
+                        getRankingEmpleados();
+                        break;
                     case 0:
                         response = true;
                         break;
@@ -44,35 +47,40 @@ public class UserInterface {
             } else {
                 switch (InputAsker.askInt(menu())) {
                     case 1:
-                        insertarIncidencia();
+                        insertarIncidencia(e);
                         break;
                     case 2:
                         incidenciaByID();
                         break;
                     case 3:
                         getAllIncidencias();
+                        break;
                     case 4:
-                        getRankingEmpleados();
+                        getIncidentByOrigen(e);
+                        break;
+                    case 5:
+                        getIncidentByDestino(e);
+                        break;
                     case 0:
                         response = true;
                         break;
                 }
             }
         } while (!response);
-    }    
-    
+    }
+
     private String menu() {
-        return "1.- Report incident.\n2.- Get incident by ID.\n0.- Exit";
+        return "1 - Report incident.\n2 - Get incident by ID.\n3 - Show all incidents.\n4 - Get incident by origin.\n5 - Get incident by destination\n0.- Exit";
     }
-    
+
     private String menuAdmin() {
-        return "1.- Report incident.\n2.- Get incident by ID.\n3.- Register \n0.- Exit";
+        return "1 - Report incident.\n2 - Get incident by ID.\n3 - Register.\n0.- Exit";
     }
-    
-    private void insertarIncidencia() {
+
+    private void insertarIncidencia(Empleado e) {
         Incidencia i = new Incidencia();
         i.setFecha(LocalDate.now());
-        i.setOrgien(InputAsker.askString("Origin: "));
+        i.setOrigen(e.getUsuario());
         i.setDestino(InputAsker.askString("Destination: "));
         i.setDetalle(InputAsker.askString("Detail: "));
         i.setTipo(getTipo(InputAsker.askString("Type: ")));
@@ -83,7 +91,7 @@ public class UserInterface {
         int id = InputAsker.askInt("ID: ");
         System.out.println(daoInterfaceImpl.getIncidenciaById(id).toString());
     }
-    
+
     private void registEmpleado() {
         Empleado e = new Empleado();
         String user = InputAsker.askString("Username: ");
@@ -103,7 +111,7 @@ public class UserInterface {
         e.setDni(InputAsker.askDNI("DNI: "));
         daoInterfaceImpl.insertEmpleado(e);
     }
-    
+
     //Moverlo a otro sitio
     public Tipo getTipo(String tipo) {
         switch (tipo.toUpperCase()) {
@@ -116,10 +124,24 @@ public class UserInterface {
     }
 
     private void getAllIncidencias() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        for (Incidencia i : daoInterfaceImpl.selectAllIncidencias()){
+            System.out.println(i);
+        }
     }
 
     private void getRankingEmpleados() {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    private void getIncidentByOrigen(Empleado e) {
+        for (Incidencia i : daoInterfaceImpl.getIncidenciaByOrigen(e)){
+            System.out.println(i);
+        }
+    }
+
+    private void getIncidentByDestino(Empleado e) {
+        for (Incidencia i : daoInterfaceImpl.getIncidenciaByDestino(e)){
+            System.out.println(i);
+        }
     }
 }
