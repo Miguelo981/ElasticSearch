@@ -16,9 +16,9 @@ public class Evento {
  
     private TipoEvento tipo;
     private LocalDate fecha;
-    private Empleado usuario;
+    private String usuario;
 
-    public Evento(TipoEvento tipo, LocalDate fecha, Empleado usuario) {
+    public Evento(TipoEvento tipo, LocalDate fecha, String usuario) {
         this.tipo = tipo;
         this.fecha = fecha;
         this.usuario = usuario;
@@ -40,11 +40,11 @@ public class Evento {
         this.fecha = fecha;
     }
 
-    public Empleado getUsuario() {
+    public String getUsuario() {
         return usuario;
     }
 
-    public void setUsuario(Empleado usuario) {
+    public void setUsuario(String usuario) {
         this.usuario = usuario;
     }
 

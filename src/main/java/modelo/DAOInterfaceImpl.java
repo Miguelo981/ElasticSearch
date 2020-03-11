@@ -6,14 +6,12 @@
 package modelo;
 
 import controller.ManagerDao;
+import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import modelo.enums.Tipo;
 import modelo.enums.TipoEvento;
 import org.elasticsearch.action.DocWriteRequest;
-import org.elasticsearch.action.admin.indices.mapping.get.GetFieldMappingsRequest;
-import org.elasticsearch.action.get.GetRequest;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.index.query.QueryBuilders;
@@ -65,7 +63,7 @@ public class DAOInterfaceImpl implements DAOInterface {
             SearchRequest searchRequest = new SearchRequest();
             searchRequest.indices("users");
             searchRequest.source(sourceBuilder);
-            id = managerDao.getTryEmpleado(searchRequest);
+            id = managerDao.getID(searchRequest);
         } catch (Exception ex) {
             System.out.println(ex.getMessage());
         }
@@ -80,7 +78,7 @@ public class DAOInterfaceImpl implements DAOInterface {
             SearchRequest searchRequest = new SearchRequest();
             searchRequest.indices("events");
             searchRequest.source(sourceBuilder);
-            id = managerDao.getTryEmpleado(searchRequest);
+            id = managerDao.getID(searchRequest);
         } catch (Exception ex) {
             System.out.println(ex.getMessage());
         }
@@ -136,6 +134,8 @@ public class DAOInterfaceImpl implements DAOInterface {
         IndexRequest indexRequest = new IndexRequest("incidents").id(Integer.toString(id)).source(jsonMap).opType(DocWriteRequest.OpType.CREATE);
         if (managerDao.index(indexRequest)) {
             System.out.println("Incidencia de tipo " + i.getTipo().name() + " creada con exito!");
+            if (i.getTipo().equals(Tipo.URGENTE))
+            insertarEvento(new Evento(TipoEvento.U, LocalDate.now(), i.getOrgien()));
         }
     }
 
@@ -152,11 +152,13 @@ public class DAOInterfaceImpl implements DAOInterface {
     @Override
     public void insertarEvento(Evento e) {
         HashMap<String, Object> jsonMap = new HashMap<>();
-        jsonMap.put("type", e.getTipo());
+        jsonMap.put("type", e.getTipo().name());
         jsonMap.put("date", e.getFecha());
         jsonMap.put("user", e.getUsuario());
-        int id = getIDEvento();
-        IndexRequest indexRequest = new IndexRequest("events").id(String.valueOf(id)).source(jsonMap).opType(DocWriteRequest.OpType.CREATE);
+        IndexRequest indexRequest = new IndexRequest("events")
+                .id(String.valueOf(getIDEvento()))
+                .source(jsonMap)
+                .opType(DocWriteRequest.OpType.CREATE);
         if (managerDao.index(indexRequest)) {
             System.out.println("Evento de tipo " + e.getTipo() + " creado con exito!");
         } else {

@@ -125,7 +125,7 @@ public class Vista {
     private static void login() {
         Empleado e = daoInterfaceImpl.loginEmpleado(InputAsker.askString("Username: "), InputAsker.askString("Insert password"));
         if(e!=null){
-            daoInterfaceImpl.insertarEvento(new Evento(TipoEvento.I, LocalDate.now(), e));
+            daoInterfaceImpl.insertarEvento(new Evento(TipoEvento.I, LocalDate.now(), e.getUsuario()));
             UserInterface userInterface = new UserInterface();
             userInterface.MenuUsuario(e, daoInterfaceImpl);
         }

@@ -99,7 +99,7 @@ public class ManagerDao {
         return e;
     }
 
-    public int getTryEmpleado(SearchRequest searchRequest) throws Exception {
+    public int getID(SearchRequest searchRequest) throws Exception {
         SearchResponse response = client.search(searchRequest, RequestOptions.DEFAULT);
 
         SearchHit[] results = response.getHits().getHits();
