@@ -52,12 +52,6 @@ public class Vista {
                 case 6:
                     deleteEmpleado();
                     break;
-                case 7:
-                    insertarIncidencia();
-                    break;
-                case 8:
-                    incidenciaByID();
-                    break;
                 case 0:
                     response = true;
                     break;
@@ -94,32 +88,6 @@ public class Vista {
         daoInterfaceImpl.insertEmpleado(e);
     }
 
-    private static void insertarIncidencia() {
-        Incidencia i = new Incidencia();
-        i.setFecha(LocalDate.now());
-        i.setOrgien(InputAsker.askString("Origin: "));
-        i.setDestino(InputAsker.askString("Destination: "));
-        i.setDetalle(InputAsker.askString("Detail: "));
-        i.setTipo(getPlatoType(InputAsker.askString("Type: ")));
-        daoInterfaceImpl.insertIncidencia(i);
-    }
-
-    private static void incidenciaByID() {
-        int id = InputAsker.askInt("ID: ");
-        System.out.println(daoInterfaceImpl.getIncidenciaById(id).toString());
-    }
-
-    //Moverlo a otro sitio
-    public static Tipo getPlatoType(String tipo) {
-        switch (tipo.toUpperCase()) {
-            case "URGENTE":
-                return Tipo.URGENTE;
-            case "NORMAL":
-                return Tipo.NORMAL;
-        }
-        return null;
-    }
-
     private static void updateEmpleado() {
         Empleado e = new Empleado();
         System.out.println("============================\n     UPDATE YOUR INFO     \n============================");
@@ -150,6 +118,10 @@ public class Vista {
     }
 
     private static void login() {
-        daoInterfaceImpl.loginEmpleado(InputAsker.askString("Username: "), InputAsker.askString("Insert password"));
+        Empleado e = daoInterfaceImpl.loginEmpleado(InputAsker.askString("Username: "), InputAsker.askString("Insert password"));
+        if(e!=null){
+            UserInterface userInterface = new UserInterface();
+            userInterface.MenuUsuario(e, daoInterfaceImpl);
+        }
     }
 }
