@@ -130,7 +130,6 @@ public class ManagerDao {
                 Incidencia i = new Incidencia(date, incidents.get("origin").toString(),
                         incidents.get("destination").toString(), incidents.get("detail").toString(), getPlatoType(incidents.get("type").toString()));
                 incidencias.add(i);
-                System.out.println("source: " + sourceAsString);
             }
 
         } catch (IOException ex) {

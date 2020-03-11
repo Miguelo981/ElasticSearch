@@ -27,7 +27,7 @@ public class Vista {
     }
 
     private static String menu() {
-        return "1.- Login.\n2.- Register.\n0.- Exit";
+        return "1 - Login.\n2 - Register.\n0 - Exit";
     }
 
     public static void menuConsola() {
@@ -61,11 +61,11 @@ public class Vista {
     }
 
     public static void cleanEmpleados() {
-        daoInterfaceImpl.getID();
+        daoInterfaceImpl.getEmployeeID();
     }
 
     public static void tryCaso() {
-        System.out.println(daoInterfaceImpl.getID());
+        System.out.println(daoInterfaceImpl.getEmployeeID());
     }
 
     private static void register() {

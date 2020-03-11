@@ -5,14 +5,12 @@
  */
 package vista;
 
-import controller.ManagerDao;
 import java.time.LocalDate;
+import java.util.List;
 import modelo.DAOInterfaceImpl;
 import modelo.Empleado;
 import modelo.Incidencia;
 import modelo.enums.Tipo;
-import static vista.Vista.cleanEmpleados;
-import static vista.Vista.tryCaso;
 
 /**
  *
@@ -35,6 +33,9 @@ public class UserInterface {
                 case 2:
                     incidenciaByID();
                     break;
+                case 3:
+                    selectAllIncidencias();
+                    break;
                 case 0:
                     response = true;
                     break;
@@ -43,7 +44,7 @@ public class UserInterface {
     }    
     
     private String menu() {
-        return "1.- Report incident.\n2.- Get incident by ID.\n0.- Exit";
+        return "1 - Report incident.\n2 - Get incident by ID.\n3 - Show all incidents.\n0 - Exit";
     }
     
     private void insertarIncidencia() {
@@ -61,7 +62,6 @@ public class UserInterface {
         System.out.println(daoInterfaceImpl.getIncidenciaById(id).toString());
     }
     
-    //Moverlo a otro sitio
     public Tipo getTipo(String tipo) {
         switch (tipo.toUpperCase()) {
             case "URGENTE":
@@ -70,5 +70,12 @@ public class UserInterface {
                 return Tipo.NORMAL;
         }
         return null;
+    }
+
+    private void selectAllIncidencias() {
+        List<Incidencia> incidencias = daoInterfaceImpl.selectAllIncidencias();
+        for (Incidencia i : incidencias){
+            System.out.println(i);
+        }
     }
 }
