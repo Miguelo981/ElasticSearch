@@ -50,6 +50,6 @@ public class Historial {
 
     @Override
     public String toString() {
-        return "Historial ->" + "tipo=" + tipo + ", fecha=" + fecha + ", usuario=" + usuario;
+        return "Historial -> " + "tipo=" + tipo + ", fecha=" + fecha + ", usuario=" + usuario;
     }
 }

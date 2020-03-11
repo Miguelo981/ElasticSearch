@@ -85,6 +85,7 @@ public class Vista {
     private static void login() {
         try {
             managerDao.getEmpleado();
+            new GetRequest
             Empleado empleado = managerDao.getEmpleado(new GetRequest("userss", "0"));
             System.out.println(empleado.toString());
         } catch (Exception ex) {
