@@ -29,7 +29,7 @@ public class Vista {
     }
 
     private static String menu() {
-        return "1.- Login.\n0.- Exit";
+        return "1 - Login.\n2 - Register.\n0 - Exit";
     }
     
     public static void menuConsola() {
@@ -38,9 +38,6 @@ public class Vista {
             switch (InputAsker.askInt(menu())) {
                 case 1:
                     login();
-                    break;
-                case 2:
-                    registEmpleado();
                     break;
                 case 3:
                     tryCaso();
@@ -61,36 +58,14 @@ public class Vista {
         } while (!response);
         daoInterfaceImpl.close();
     }
-    
-    private static void registEmpleado() {
-        Empleado e = new Empleado();
-        String user = InputAsker.askString("Username: ");
-        e.setUsuario(user);
-        e.setNombre(InputAsker.askString("Name: "));
-        String pass = "", pass2 = "";
-        do {
-            pass = InputAsker.askString("Insert password: (8 digits maximum)", 8);
-            pass2 = InputAsker.askString("Confirm password: ", 8);
-            if (!pass.equals(pass2)) {
-                System.out.println("Passwords does not match.");
-            }
-        } while (!pass.equals(pass2));
-        e.setPassword(pass);
-        e.setApellidos(InputAsker.askString("Surname: "));
-        e.setTelefono(InputAsker.askString("Phone number: ", 8));
-        e.setDni(InputAsker.askDNI("DNI: "));
-        daoInterfaceImpl.insertEmpleado(e);
-    }
 
     public static void cleanEmpleados() {
-        daoInterfaceImpl.getID();
+        daoInterfaceImpl.getEmployeeID();
     }
 
     public static void tryCaso() {
-        System.out.println(daoInterfaceImpl.getID());
+        System.out.println(daoInterfaceImpl.getEmployeeID());
     }
-
-    
 
     private static void updateEmpleado() {
         Empleado e = new Empleado();

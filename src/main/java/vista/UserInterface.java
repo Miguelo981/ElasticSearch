@@ -5,7 +5,6 @@
  */
 package vista;
 
-import controller.ManagerDao;
 import java.time.LocalDate;
 import modelo.DAOInterfaceImpl;
 import modelo.Empleado;

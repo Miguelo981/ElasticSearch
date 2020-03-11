@@ -5,7 +5,7 @@
  */
 package modelo;
 
-import controller.ManagerDao;
+import controller.BBDDManager;
 import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;
@@ -24,10 +24,10 @@ import org.elasticsearch.search.builder.SearchSourceBuilder;
 public class DAOInterfaceImpl implements DAOInterface {
 
     private static DAOInterfaceImpl daoInterfaceImpl = null;
-    private static ManagerDao managerDao;
+    private static BBDDManager managerDao;
 
     private DAOInterfaceImpl() {
-        managerDao = ManagerDao.getManagerDao();
+        managerDao = BBDDManager.getManagerDao();
     }
 
     public static DAOInterfaceImpl getInstance() {
@@ -39,23 +39,44 @@ public class DAOInterfaceImpl implements DAOInterface {
 
     @Override
     public void insertEmpleado(Empleado e) {
-        HashMap<String, Object> jsonMap = new HashMap<>();
-        jsonMap.put("user", e.getUsuario());
-        jsonMap.put("name", e.getNombre());
-        jsonMap.put("pass", e.getPassword());
-        jsonMap.put("surname", e.getApellidos());
-        jsonMap.put("phone", e.getTelefono());
-        jsonMap.put("dni", e.getDni());
-        int id = getID();
-        IndexRequest indexRequest = new IndexRequest("users").id(String.valueOf(id)).source(jsonMap).opType(DocWriteRequest.OpType.CREATE);
-        if (managerDao.index(indexRequest)) {
-            System.out.println("Usuario " + e.getUsuario() + " creado con exito!");
+        SearchSourceBuilder sourceBuilder = new SearchSourceBuilder();
+        sourceBuilder.query(QueryBuilders.termQuery("user", e.getUsuario()));
+        SearchRequest searchRequest = new SearchRequest();
+        searchRequest.indices("users");
+        searchRequest.source(sourceBuilder);
+        if (!managerDao.checkUserExists(searchRequest)) {
+            HashMap<String, Object> jsonMap = new HashMap<>();
+            jsonMap.put("user", e.getUsuario());
+            jsonMap.put("name", e.getNombre());
+            jsonMap.put("pass", e.getPassword());
+            jsonMap.put("surname", e.getApellidos());
+            jsonMap.put("phone", e.getTelefono());
+            jsonMap.put("dni", e.getDni());
+            int id = getEmployeeID();
+            IndexRequest indexRequest = new IndexRequest("users").id(String.valueOf(id)).source(jsonMap).opType(DocWriteRequest.OpType.CREATE);
+            if (managerDao.index(indexRequest)) {
+                System.out.println("User " + e.getUsuario() + " created successfully");
+            }
         } else {
-            System.out.println("Error al crear usuario!");
+            System.out.println("User already exists.");
+            HashMap<String, Object> jsonMap = new HashMap<>();
+            jsonMap.put("user", e.getUsuario());
+            jsonMap.put("name", e.getNombre());
+            jsonMap.put("pass", e.getPassword());
+            jsonMap.put("surname", e.getApellidos());
+            jsonMap.put("phone", e.getTelefono());
+            jsonMap.put("dni", e.getDni());
+            int id = getEmployeeID();
+            IndexRequest indexRequest = new IndexRequest("users").id(String.valueOf(id)).source(jsonMap).opType(DocWriteRequest.OpType.CREATE);
+            if (managerDao.index(indexRequest)) {
+                System.out.println("Usuario " + e.getUsuario() + " creado con exito!");
+            } else {
+                System.out.println("Error al crear usuario!");
+            }
         }
     }
 
-    public int getID() {
+    public int getEmployeeID() {
         int id = 0;
         try {
             SearchSourceBuilder sourceBuilder = new SearchSourceBuilder();
@@ -104,12 +125,24 @@ public class DAOInterfaceImpl implements DAOInterface {
 
     @Override
     public void updateEmpleado(Empleado e) {
-        managerDao.update(e);
+        HashMap<String, Object> jsonMap = new HashMap<>();
+        jsonMap.put("user", e.getUsuario());
+        jsonMap.put("name", e.getNombre());
+        jsonMap.put("pass", e.getPassword());
+        jsonMap.put("surname", e.getApellidos());
+        jsonMap.put("phone", e.getTelefono());
+        jsonMap.put("dni", e.getDni());
+
+        SearchRequest searchRequest = new SearchRequest();
+        searchRequest.indices("users");
+        managerDao.updateEmpleado(searchRequest, jsonMap);
     }
 
     @Override
     public void removeEmpleado(Empleado e) {
-        managerDao.delete(e);
+        SearchRequest searchRequest = new SearchRequest();
+        searchRequest.indices("users");
+        managerDao.delete(searchRequest, e.getUsuario());
     }
 
     @Override
@@ -122,6 +155,21 @@ public class DAOInterfaceImpl implements DAOInterface {
         return managerDao.getAllIncidents();
     }
 
+    public int getIncidentID() {
+        int id = 0;
+        try {
+            SearchSourceBuilder sourceBuilder = new SearchSourceBuilder();
+            sourceBuilder.query(QueryBuilders.matchAllQuery());
+            SearchRequest searchRequest = new SearchRequest();
+            searchRequest.indices("incidents");
+            searchRequest.source(sourceBuilder);
+            id = managerDao.getID(searchRequest);
+        } catch (Exception ex) {
+            System.out.println(ex.getMessage());
+        }
+        return id + 1;
+    }
+
     @Override
     public void insertIncidencia(Incidencia i) {
         HashMap<String, Object> jsonMap = new HashMap<>();
@@ -130,23 +178,27 @@ public class DAOInterfaceImpl implements DAOInterface {
         jsonMap.put("destination", i.getDestino());
         jsonMap.put("detail", i.getDetalle());
         jsonMap.put("type", i.getTipo().name());
-        int id = 0;
-        IndexRequest indexRequest = new IndexRequest("incidents").id(Integer.toString(id)).source(jsonMap).opType(DocWriteRequest.OpType.CREATE);
+        IndexRequest indexRequest = new IndexRequest("incidents").id(Integer.toString(getIncidentID())).source(jsonMap).opType(DocWriteRequest.OpType.CREATE);
         if (managerDao.index(indexRequest)) {
             System.out.println("Incidencia de tipo " + i.getTipo().name() + " creada con exito!");
-            if (i.getTipo().equals(Tipo.URGENTE))
-            insertarEvento(new Evento(TipoEvento.U, LocalDate.now(), i.getOrgien()));
+            if (i.getTipo().equals(Tipo.URGENTE)) {
+                insertarEvento(new Evento(TipoEvento.U, LocalDate.now(), i.getOrgien()));
+            }
         }
     }
 
     @Override
     public List<Incidencia> getIncidenciaByDestino(Empleado e) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        SearchRequest searchRequest = new SearchRequest();
+        searchRequest.indices("incidents");
+        return managerDao.getIncidentsByDestination(searchRequest, e.getUsuario());
     }
 
     @Override
     public List<Incidencia> getIncidenciaByOrigen(Empleado e) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        SearchRequest searchRequest = new SearchRequest();
+        searchRequest.indices("incidents");
+        return managerDao.getIncidentsByOrigin(searchRequest, e.getUsuario());
     }
 
     @Override
