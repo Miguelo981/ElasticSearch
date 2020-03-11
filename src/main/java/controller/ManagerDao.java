@@ -91,8 +91,12 @@ public class ManagerDao {
         SearchResponse response = client.search(getRequest, RequestOptions.DEFAULT);
 
         //GetResponse response = client.get(getRequest, RequestOptions.DEFAULT);
-        Map<String, Object> e = response.getHits().getAt(0).getSourceAsMap();
-        return new Empleado(e.get(""));
+        Map<String, Object> sourceAsMap = response.getHits().getAt(0).getSourceAsMap();
+        Empleado e = new Empleado((String) sourceAsMap.get("user"), 
+                (String) sourceAsMap.get("name"), (String) sourceAsMap.get("surname"), 
+                (String) sourceAsMap.get("phone"), (String) sourceAsMap.get("dni"), 
+                (String) sourceAsMap.get("pass"));
+        return e;
     }
 
     public int getTryEmpleado(SearchRequest searchRequest) throws Exception {

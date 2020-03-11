@@ -77,10 +77,12 @@ public class DAOInterfaceImpl implements DAOInterface {
         try {
             SearchSourceBuilder sourceBuilder = new SearchSourceBuilder();
             sourceBuilder.query(QueryBuilders.termQuery("user", user));
+            sourceBuilder.query(QueryBuilders.termQuery("pass", pass)); //Funciona?
             SearchRequest searchRequest = new SearchRequest();
             searchRequest.indices("users");
             searchRequest.source(sourceBuilder);
-            return managerDao.getEmpleado(searchRequest);
+            Empleado e = managerDao.getEmpleado(searchRequest);
+            return e;
         } catch (Exception ex) {
             System.out.println(ex.getMessage());
         }
