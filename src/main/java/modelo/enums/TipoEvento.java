@@ -9,8 +9,7 @@ package modelo.enums;
  *
  * @author alu2018262
  */
-public enum Evento {
-    
+public enum TipoEvento {   
     I,E,U
     
 }

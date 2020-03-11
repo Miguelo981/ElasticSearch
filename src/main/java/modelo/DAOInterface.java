@@ -1,6 +1,6 @@
 package modelo;
 import java.util.List;
-import modelo.enums.Evento;
+import modelo.enums.TipoEvento;
 
 /**
  *
@@ -48,7 +48,7 @@ public abstract interface DAOInterface {
     public void insertarEvento(Evento e);
     
     // Obtener la fecha-hora del último inicio de sesión para un empleado.
-    public Evento getUltimoInicioSesion(Empleado e);
+    public TipoEvento getUltimoInicioSesion(Empleado e);
 
     // Obtener el ranking de los empleados por cantidad de incidencias
     // urgentes creadas (más incidencias urgentes primero).

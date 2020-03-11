@@ -3,8 +3,10 @@ package vista;
 import java.time.LocalDate;
 import modelo.DAOInterfaceImpl;
 import modelo.Empleado;
+import modelo.Evento;
 import modelo.Incidencia;
 import modelo.enums.Tipo;
+import modelo.enums.TipoEvento;
 
 /**
  *
@@ -27,7 +29,7 @@ public class Vista {
     }
 
     private static String menu() {
-        return "1.- Login.\n2.- Register.\n0.- Exit";
+        return "1.- Login.\n0.- Exit";
     }
     
     public static void menuConsola() {
@@ -38,7 +40,7 @@ public class Vista {
                     login();
                     break;
                 case 2:
-                    register();
+                    registEmpleado();
                     break;
                 case 3:
                     tryCaso();
@@ -59,16 +61,8 @@ public class Vista {
         } while (!response);
         daoInterfaceImpl.close();
     }
-
-    public static void cleanEmpleados() {
-        daoInterfaceImpl.getID();
-    }
-
-    public static void tryCaso() {
-        System.out.println(daoInterfaceImpl.getID());
-    }
-
-    private static void register() {
+    
+    private static void registEmpleado() {
         Empleado e = new Empleado();
         String user = InputAsker.askString("Username: ");
         e.setUsuario(user);
@@ -87,6 +81,16 @@ public class Vista {
         e.setDni(InputAsker.askDNI("DNI: "));
         daoInterfaceImpl.insertEmpleado(e);
     }
+
+    public static void cleanEmpleados() {
+        daoInterfaceImpl.getID();
+    }
+
+    public static void tryCaso() {
+        System.out.println(daoInterfaceImpl.getID());
+    }
+
+    
 
     private static void updateEmpleado() {
         Empleado e = new Empleado();
@@ -116,10 +120,12 @@ public class Vista {
         //Falta pasar por parametro el empleado conectado
         daoInterfaceImpl.removeEmpleado(e);
     }
-
+    
+    //TODO INSERT EVENTO
     private static void login() {
         Empleado e = daoInterfaceImpl.loginEmpleado(InputAsker.askString("Username: "), InputAsker.askString("Insert password"));
         if(e!=null){
+            daoInterfaceImpl.insertarEvento(new Evento(TipoEvento.I, LocalDate.now(), e));
             UserInterface userInterface = new UserInterface();
             userInterface.MenuUsuario(e, daoInterfaceImpl);
         }

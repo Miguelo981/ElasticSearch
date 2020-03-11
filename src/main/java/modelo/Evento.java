@@ -5,30 +5,30 @@
  */
 package modelo;
 
-import modelo.enums.Evento;
+import modelo.enums.TipoEvento;
 import java.time.LocalDate;
 
 /**
  *
  * @author alu2018262
  */
-public class Historial {
+public class Evento {
  
-    private Evento tipo;
+    private TipoEvento tipo;
     private LocalDate fecha;
     private Empleado usuario;
 
-    public Historial(Evento tipo, LocalDate fecha, Empleado usuario) {
+    public Evento(TipoEvento tipo, LocalDate fecha, Empleado usuario) {
         this.tipo = tipo;
         this.fecha = fecha;
         this.usuario = usuario;
     }
 
-    public Evento getTipo() {
+    public TipoEvento getTipo() {
         return tipo;
     }
 
-    public void setTipo(Evento tipo) {
+    public void setTipo(TipoEvento tipo) {
         this.tipo = tipo;
     }
 

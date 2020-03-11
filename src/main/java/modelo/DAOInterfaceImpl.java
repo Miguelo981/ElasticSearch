@@ -10,7 +10,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import modelo.enums.Evento;
+import modelo.enums.TipoEvento;
 import org.elasticsearch.action.DocWriteRequest;
 import org.elasticsearch.action.admin.indices.mapping.get.GetFieldMappingsRequest;
 import org.elasticsearch.action.get.GetRequest;
@@ -71,7 +71,22 @@ public class DAOInterfaceImpl implements DAOInterface {
         }
         return id + 1;
     }
-    
+
+    public int getIDEvento() {
+        int id = 0;
+        try {
+            SearchSourceBuilder sourceBuilder = new SearchSourceBuilder();
+            sourceBuilder.query(QueryBuilders.matchAllQuery());
+            SearchRequest searchRequest = new SearchRequest();
+            searchRequest.indices("events");
+            searchRequest.source(sourceBuilder);
+            id = managerDao.getTryEmpleado(searchRequest);
+        } catch (Exception ex) {
+            System.out.println(ex.getMessage());
+        }
+        return id + 1;
+    }
+
     @Override
     public Empleado loginEmpleado(String user, String pass) {
         try {
@@ -137,19 +152,20 @@ public class DAOInterfaceImpl implements DAOInterface {
     @Override
     public void insertarEvento(Evento e) {
         HashMap<String, Object> jsonMap = new HashMap<>();
-        /**
-         * jsonMap.put("type", i.getFecha()); jsonMap.put("date",
-         * i.getOrgien()); jsonMap.put("employe", i.getDestino());
-         */
-        int id = 0;
-        IndexRequest indexRequest = new IndexRequest("events").id(Integer.toString(id)).source(jsonMap).opType(DocWriteRequest.OpType.CREATE);
+        jsonMap.put("type", e.getTipo());
+        jsonMap.put("date", e.getFecha());
+        jsonMap.put("user", e.getUsuario());
+        int id = getIDEvento();
+        IndexRequest indexRequest = new IndexRequest("events").id(String.valueOf(id)).source(jsonMap).opType(DocWriteRequest.OpType.CREATE);
         if (managerDao.index(indexRequest)) {
-            System.out.println("Evento de tipo " + e.name() + " creado con exito!");
+            System.out.println("Evento de tipo " + e.getTipo() + " creado con exito!");
+        } else {
+            System.out.println("Error al crear el evento!");
         }
     }
 
     @Override
-    public Evento getUltimoInicioSesion(Empleado e) {
+    public TipoEvento getUltimoInicioSesion(Empleado e) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
