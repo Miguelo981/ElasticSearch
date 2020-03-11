@@ -25,18 +25,18 @@ import org.elasticsearch.client.RestClient;
 import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.search.SearchHit;
 
-public class ManagerDao {
+public class BBDDManager {
 
-    private static ManagerDao managerDao;
+    private static BBDDManager managerDao;
     RestHighLevelClient client;
 
-    private ManagerDao() {
+    private BBDDManager() {
         client = new RestHighLevelClient(RestClient.builder(new HttpHost("localhost", 9200, "http")));
     }
 
-    public static ManagerDao getManagerDao() {
+    public static BBDDManager getManagerDao() {
         if (managerDao == null) {
-            managerDao = new ManagerDao();
+            managerDao = new BBDDManager();
         }
         return managerDao;
     }
@@ -44,9 +44,6 @@ public class ManagerDao {
     public boolean index(IndexRequest indexRequest) throws ElasticsearchStatusException {
         try {
             IndexResponse indexResponse = client.index(indexRequest, RequestOptions.DEFAULT);
-            /*if (indexResponse.equals(false)) {
-                return true;
-            }*/
             return true;
         } catch (IOException | ElasticsearchStatusException ex) {
             System.out.println(ex.getMessage());
@@ -105,19 +102,16 @@ public class ManagerDao {
         return incidencias;
     }
 
-    public List<Incidencia> getIncidentsByOrigin(String e) {
+    public List<Incidencia> getIncidentsByOrigin(SearchRequest searchRequest, String e) {
         List<Incidencia> incidencias = new ArrayList<>();
         try {
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-            SearchRequest searchRequest = new SearchRequest();
-            searchRequest.indices("incidents");
             SearchResponse searchResponse = client.search(searchRequest, RequestOptions.DEFAULT);
 
             SearchHit[] results = searchResponse.getHits().getHits();
             for (SearchHit hit : results) {
                 Map<String, Object> incidents = hit.getSourceAsMap();
                 if (incidents.get("origin").toString().equals(e)) {
-                    String sourceAsString = hit.getSourceAsString();
                     LocalDate date = LocalDate.parse(incidents.get("date").toString(), formatter);
                     Incidencia i = new Incidencia(date, incidents.get("origin").toString(),
                             incidents.get("destination").toString(), incidents.get("detail").toString(), getIncidentType(incidents.get("type").toString()));
@@ -130,19 +124,16 @@ public class ManagerDao {
         return incidencias;
     }
 
-    public List<Incidencia> getIncidentsByDestination(String e) {
+    public List<Incidencia> getIncidentsByDestination(SearchRequest searchRequest, String e) {
         List<Incidencia> incidencias = new ArrayList<>();
         try {
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-            SearchRequest searchRequest = new SearchRequest();
-            searchRequest.indices("incidents");
             SearchResponse searchResponse = client.search(searchRequest, RequestOptions.DEFAULT);
 
             SearchHit[] results = searchResponse.getHits().getHits();
             for (SearchHit hit : results) {
                 Map<String, Object> incidents = hit.getSourceAsMap();
                 if (incidents.get("destination").toString().equals(e)) {
-                    String sourceAsString = hit.getSourceAsString();
                     LocalDate date = LocalDate.parse(incidents.get("date").toString(), formatter);
 
                     Incidencia i = new Incidencia(date, incidents.get("origin").toString(),
@@ -160,7 +151,7 @@ public class ManagerDao {
         try {
             SearchResponse searchResponse = client.search(searchRequest, RequestOptions.DEFAULT);
             SearchHit[] hits = searchResponse.getHits().getHits();
-            if (hits.length==0) {
+            if (hits.length == 0) {
                 return false;
             }
         } catch (IOException ex) {
@@ -224,7 +215,6 @@ public class ManagerDao {
 
             SearchHit[] results = searchResponse.getHits().getHits();
             for (SearchHit hit : results) {
-                String sourceAsString = hit.getSourceAsString();
                 Map<String, Object> incidents = hit.getSourceAsMap();
                 if (hit.getId().equals(String.valueOf(id))) {
                     LocalDate date = LocalDate.parse(incidents.get("date").toString(), formatter);

@@ -5,7 +5,7 @@
  */
 package modelo;
 
-import controller.ManagerDao;
+import controller.BBDDManager;
 import java.util.HashMap;
 import java.util.List;
 import modelo.enums.Evento;
@@ -22,10 +22,10 @@ import org.elasticsearch.search.builder.SearchSourceBuilder;
 public class DAOInterfaceImpl implements DAOInterface {
 
     private static DAOInterfaceImpl daoInterfaceImpl = null;
-    private static ManagerDao managerDao;
+    private static BBDDManager managerDao;
 
     private DAOInterfaceImpl() {
-        managerDao = ManagerDao.getManagerDao();
+        managerDao = BBDDManager.getManagerDao();
     }
 
     public static DAOInterfaceImpl getInstance() {
@@ -155,12 +155,16 @@ public class DAOInterfaceImpl implements DAOInterface {
 
     @Override
     public List<Incidencia> getIncidenciaByDestino(Empleado e) {
-        return managerDao.getIncidentsByDestination(e.getUsuario());
+        SearchRequest searchRequest = new SearchRequest();
+        searchRequest.indices("incidents");
+        return managerDao.getIncidentsByDestination(searchRequest, e.getUsuario());
     }
 
     @Override
     public List<Incidencia> getIncidenciaByOrigen(Empleado e) {
-        return managerDao.getIncidentsByOrigin(e.getUsuario());
+        SearchRequest searchRequest = new SearchRequest();
+        searchRequest.indices("incidents");
+        return managerDao.getIncidentsByOrigin(searchRequest, e.getUsuario());
     }
 
     @Override
