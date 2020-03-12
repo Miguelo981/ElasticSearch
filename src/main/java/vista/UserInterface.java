@@ -143,9 +143,27 @@ public class UserInterface {
     }
 
     private void deleteEmpleado() {
-        Empleado e = new Empleado();
-        //Falta pasar por parametro el empleado conectado
-        daoInterfaceImpl.removeEmpleado(e);
+        System.out.println("Delete");
+        List<Empleado> empleados = daoInterfaceImpl.findEmpleados();
+        if (!empleados.isEmpty()) {
+            for (Empleado e : empleados) {
+                System.out.println(e.toString());
+            }
+            String user = InputAsker.askString("Select user (username)");
+            Empleado e = null;
+            for (Empleado empleado : empleados) {
+                if (empleado.getUsuario().equalsIgnoreCase(user)) {
+                    e = empleado;
+                }
+            }
+            if (e == null) {
+                System.out.println("No user exists with that username");
+            } else {
+                daoInterfaceImpl.removeEmpleado(e);
+            }
+        } else {
+            System.out.println("No users registered");
+        }
     }
 
     //Moverlo a otro sitio
