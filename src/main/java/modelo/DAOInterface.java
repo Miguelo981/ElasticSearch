@@ -19,6 +19,9 @@ public abstract interface DAOInterface {
 
     // Método para eliminar un empleado.
     public void removeEmpleado(Empleado e);
+    
+    // Método para recoger todos los empleado
+    public List<Empleado> findEmpleados();
 
     // Obtener una Incidencia a partir de su Id.
     public Incidencia getIncidenciaById(int id);

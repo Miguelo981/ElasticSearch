@@ -6,6 +6,7 @@
 package vista;
 
 import java.time.LocalDate;
+import java.util.List;
 import modelo.DAOInterfaceImpl;
 import modelo.Empleado;
 import modelo.Incidencia;
@@ -32,8 +33,15 @@ public class UserInterface {
                         registEmpleado();
                         break;
                     case 2:
+                        updateEmpleado();
+                        break;
+                    case 3:
+                        deleteEmpleado();
+                        break;
+                    case 4:
                         getRankingEmpleados();
                         break;
+                        
                     case 0:
                         response = true;
                         break;
@@ -106,6 +114,40 @@ public class UserInterface {
         daoInterfaceImpl.insertEmpleado(e);
     }
 
+    private void updateEmpleado() {
+        System.out.println("Update");
+        List<Empleado> empleados = daoInterfaceImpl.findEmpleados();
+        if (!empleados.isEmpty()) {
+            for (Empleado e : empleados) {
+                System.out.println(e.toString());
+            }
+            String user = InputAsker.askString("Select user (username)");
+            Empleado e = null;
+            for (Empleado empleado : empleados) {
+                if (empleado.getUsuario().equalsIgnoreCase(user)) {
+                    e = empleado;
+                }
+            }
+            if (e == null) {
+                System.out.println("No user exists with that username");
+            } else {
+                e.setNombre(InputAsker.askString("Name ("+e.getNombre()+"): "));
+                e.setApellidos(InputAsker.askString("Surname ("+e.getApellidos()+"): "));
+                e.setTelefono(InputAsker.askString("Phone number ("+e.getTelefono()+"): ", 8));
+                e.setDni(InputAsker.askDNI("DNI ("+e.getDni()+"): "));
+                daoInterfaceImpl.updateEmpleado(e);
+            }
+        } else {
+            System.out.println("No users registered");
+        }
+    }
+
+    private void deleteEmpleado() {
+        Empleado e = new Empleado();
+        //Falta pasar por parametro el empleado conectado
+        daoInterfaceImpl.removeEmpleado(e);
+    }
+
     //Moverlo a otro sitio
     public Tipo getTipo(String tipo) {
         switch (tipo.toUpperCase()) {
@@ -118,7 +160,7 @@ public class UserInterface {
     }
 
     private void getAllIncidencias() {
-        for (Incidencia i : daoInterfaceImpl.selectAllIncidencias()){
+        for (Incidencia i : daoInterfaceImpl.selectAllIncidencias()) {
             System.out.println(i);
         }
     }
@@ -128,13 +170,13 @@ public class UserInterface {
     }
 
     private void getIncidentByOrigen(Empleado e) {
-        for (Incidencia i : daoInterfaceImpl.getIncidenciaByOrigen(e)){
+        for (Incidencia i : daoInterfaceImpl.getIncidenciaByOrigen(e)) {
             System.out.println(i);
         }
     }
 
     private void getIncidentByDestino(Empleado e) {
-        for (Incidencia i : daoInterfaceImpl.getIncidenciaByDestino(e)){
+        for (Incidencia i : daoInterfaceImpl.getIncidenciaByDestino(e)) {
             System.out.println(i);
         }
     }

@@ -6,9 +6,13 @@
 package modelo;
 
 import controller.BBDDManager;
+import java.io.IOException;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import modelo.enums.Tipo;
 import modelo.enums.TipoEvento;
 import org.elasticsearch.action.DocWriteRequest;
@@ -244,5 +248,20 @@ public class DAOInterfaceImpl implements DAOInterface {
     @Override
     public void close() {
         managerDao.close();
+    }
+
+    @Override
+    public List<Empleado> findEmpleados() {
+        List<Empleado> empleados = new ArrayList<>();
+        try {
+            SearchSourceBuilder sourceBuilder = new SearchSourceBuilder();
+            sourceBuilder.query(QueryBuilders.matchAllQuery());
+            SearchRequest searchRequest = new SearchRequest();
+            searchRequest.indices("users");
+            empleados = managerDao.findEmpleados(searchRequest);
+        } catch (IOException ex) {
+            System.out.println(ex.getMessage());
+        }
+        return empleados;
     }
 }

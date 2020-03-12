@@ -63,6 +63,21 @@ public class BBDDManager {
                 (String) sourceAsMap.get("pass"));
         return e;
     }
+    
+    public List<Empleado> findEmpleados(SearchRequest findRequest) throws IOException{
+        List<Empleado> empleados = new ArrayList<>();
+        SearchResponse response = client.search(findRequest, RequestOptions.DEFAULT);
+        SearchHit[] results = response.getHits().getHits();
+        for (SearchHit h : results) {
+            Map<String, Object> sourceAsMap = h.getSourceAsMap();
+            Empleado e = new Empleado((String) sourceAsMap.get("user"),
+                (String) sourceAsMap.get("name"), (String) sourceAsMap.get("surname"),
+                (String) sourceAsMap.get("phone"), (String) sourceAsMap.get("dni"),
+                (String) sourceAsMap.get("pass"));
+            empleados.add(e);
+        }
+        return empleados;
+    }
 
     public int getID(SearchRequest searchRequest) throws Exception {
         SearchResponse response = client.search(searchRequest, RequestOptions.DEFAULT);
@@ -163,7 +178,6 @@ public class BBDDManager {
     public void updateEmpleado(SearchRequest searchRequest, HashMap<String, Object> jsonMap) {
         try {
             SearchResponse searchResponse = client.search(searchRequest, RequestOptions.DEFAULT);
-
             SearchHit[] results = searchResponse.getHits().getHits();
             for (SearchHit hit : results) {
                 Map<String, Object> usuarios = hit.getSourceAsMap();
