@@ -36,8 +36,7 @@ public abstract interface DAOInterface {
     // Obtener la lista de incidencias con origen un determinado
     // empleado, a partir de un objeto empleado.
     public List<Incidencia> getIncidenciaByOrigen(Empleado e);
-
-    
+   
     // Método para insertar un evento en la tabla historial.
     // Pasaremos como parámetro un objeto tipo evento, y no devolverá nada.
     // Llamaremos a este método desde los métodos

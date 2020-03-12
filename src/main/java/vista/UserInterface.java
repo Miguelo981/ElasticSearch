@@ -29,15 +29,9 @@ public class UserInterface {
             if (e.getUsuario().equals("admin") && e.getPassword().equals("admin")) {
                 switch (InputAsker.askInt(menuAdmin())) {
                     case 1:
-                        insertarIncidencia(e);
-                        break;
-                    case 2:
-                        incidenciaByID();
-                        break;
-                    case 3:
                         registEmpleado();
                         break;
-                    case 4:
+                    case 2:
                         getRankingEmpleados();
                         break;
                     case 0:
@@ -74,7 +68,7 @@ public class UserInterface {
     }
 
     private String menuAdmin() {
-        return "1 - Report incident.\n2 - Get incident by ID.\n3 - Register.\n0.- Exit";
+        return "1 - Register.\n2 - Get Ranking Employee\n0.- Exit";
     }
 
     private void insertarIncidencia(Empleado e) {
