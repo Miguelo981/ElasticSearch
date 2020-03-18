@@ -7,6 +7,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import modelo.Empleado;
 import modelo.Incidencia;
 import modelo.enums.Tipo;
@@ -79,18 +81,22 @@ public class BBDDManager {
         return empleados;
     }
 
-    public int getID(SearchRequest searchRequest) throws Exception {
-        SearchResponse response = client.search(searchRequest, RequestOptions.DEFAULT);
-
-        SearchHit[] results = response.getHits().getHits();
-        int maxId = 0;
-        for (SearchHit h : results) {
-            int actualId = Integer.parseInt(h.getId());
-            if (actualId > maxId) {
-                maxId = actualId;
+    public int getID(SearchRequest searchRequest) {
+        try {
+            SearchResponse response = client.search(searchRequest, RequestOptions.DEFAULT);
+            
+            SearchHit[] results = response.getHits().getHits();
+            int maxId = 0;
+            for (SearchHit h : results) {
+                int actualId = Integer.parseInt(h.getId());
+                if (actualId > maxId) {
+                    maxId = actualId;
+                }
             }
+            return maxId;
+        } catch (IOException ex) {
+            return 0;
         }
-        return maxId;
     }
 
     public List<Incidencia> getAllIncidents() {

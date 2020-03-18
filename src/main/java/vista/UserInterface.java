@@ -11,6 +11,7 @@ import modelo.DAOInterfaceImpl;
 import modelo.Empleado;
 import modelo.Incidencia;
 import modelo.enums.Tipo;
+import org.elasticsearch.client.indices.GetIndexRequest;
 
 /**
  *
@@ -21,6 +22,11 @@ public class UserInterface {
     private DAOInterfaceImpl daoInterfaceImpl;
 
     public UserInterface() {
+        if (new GetIndexRequest("users").local()) {
+                System.out.println("EXISTO"); 
+            } else {
+            System.out.println("NO EXISTO?");
+        }
     }
 
     public void menuUsuario(Empleado e, DAOInterfaceImpl impl) {

@@ -18,6 +18,7 @@ import modelo.enums.TipoEvento;
 import org.elasticsearch.action.DocWriteRequest;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.search.SearchRequest;
+import org.elasticsearch.client.indices.GetIndexRequest;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 
@@ -48,7 +49,7 @@ public class DAOInterfaceImpl implements DAOInterface {
         SearchRequest searchRequest = new SearchRequest();
         searchRequest.indices("users");
         searchRequest.source(sourceBuilder);
-        if (!managerDao.checkUserExists(searchRequest)) {
+        if (!new GetIndexRequest("users").local() || !managerDao.checkUserExists(searchRequest)) {
             HashMap<String, Object> jsonMap = new HashMap<>();
             jsonMap.put("user", e.getUsuario());
             jsonMap.put("name", e.getNombre());
@@ -56,7 +57,12 @@ public class DAOInterfaceImpl implements DAOInterface {
             jsonMap.put("surname", e.getApellidos());
             jsonMap.put("phone", e.getTelefono());
             jsonMap.put("dni", e.getDni());
-            int id = getEmployeeID();
+            int id;
+            if (!new GetIndexRequest("users").local()) {
+                id = 0;
+            } else {
+                id = getEmployeeID();
+            }
             IndexRequest indexRequest = new IndexRequest("users").id(String.valueOf(id)).source(jsonMap).opType(DocWriteRequest.OpType.CREATE);
             if (managerDao.index(indexRequest)) {
                 System.out.println("User " + e.getUsuario() + " created successfully");
@@ -78,6 +84,7 @@ public class DAOInterfaceImpl implements DAOInterface {
                 System.out.println("Error al crear usuario!");
             }
         }
+
     }
 
     public int getEmployeeID() {
