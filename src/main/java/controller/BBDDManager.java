@@ -56,7 +56,13 @@ public class BBDDManager {
         return false;
     }
 
-    //public Empleado getEmpleado(GetFieldMappingsRequest  getRequest) throws Exception {
+    /**
+     * Función para devolver el objeto empleado, pasando por parametro la consulta.
+     * Nos permitira guardar el empleado que haya inciado sesión.
+     * @param getRequest
+     * @return
+     * @throws Exception 
+     */
     public Empleado getEmpleado(SearchRequest getRequest) throws Exception {
         SearchResponse response = client.search(getRequest, RequestOptions.DEFAULT);
 
@@ -69,6 +75,12 @@ public class BBDDManager {
         return e;
     }
 
+    /**
+     * 
+     * @param findRequest
+     * @return
+     * @throws IOException 
+     */
     public List<Empleado> findEmpleados(SearchRequest findRequest) throws IOException {
         List<Empleado> empleados = new ArrayList<>();
         SearchResponse response = client.search(findRequest, RequestOptions.DEFAULT);
@@ -102,6 +114,12 @@ public class BBDDManager {
         }
     }
 
+    /**
+     * Función para recoger todas las incidencias de la BBDD, recogemos los resultados
+     * del indice 'incidents', recorremos todos los resultados, los serializamos y los 
+     * agregamos a la lista de incidencias. Finalmente devolvemos la lista.
+     * @return 
+     */
     public List<Incidencia> getAllIncidents() {
         List<Incidencia> incidencias = new ArrayList<>();
         try {
@@ -126,6 +144,14 @@ public class BBDDManager {
         return incidencias;
     }
 
+    /**
+     * Función para recoger todas las incidencias de la BBDD, pasando como condicion
+     * el origen. Recogemos los resultados del indice 'incidents', recorremos todos los resultados, 
+     * los serializamos y los agregamos a la lista de incidencias. Finalmente devolvemos la lista.
+     * @param searchRequest
+     * @param e
+     * @return 
+     */
     public List<Incidencia> getIncidentsByOrigin(SearchRequest searchRequest, String e) {
         List<Incidencia> incidencias = new ArrayList<>();
         try {
