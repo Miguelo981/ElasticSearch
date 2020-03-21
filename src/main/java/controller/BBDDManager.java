@@ -11,6 +11,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import modelo.Empleado;
 import modelo.Incidencia;
+import modelo.RankingTO;
 import modelo.enums.Tipo;
 import org.apache.http.HttpHost;
 import org.elasticsearch.ElasticsearchStatusException;
@@ -25,7 +26,9 @@ import org.elasticsearch.action.update.UpdateResponse;
 import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestClient;
 import org.elasticsearch.client.RestHighLevelClient;
+import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
+import org.elasticsearch.search.builder.SearchSourceBuilder;
 
 public class BBDDManager {
 
@@ -43,7 +46,7 @@ public class BBDDManager {
         return managerDao;
     }
 
-    public boolean index(IndexRequest indexRequest) throws ElasticsearchStatusException {
+    public boolean index(IndexRequest indexRequest) {
         try {
             IndexResponse indexResponse = client.index(indexRequest, RequestOptions.DEFAULT);
             return true;
@@ -65,17 +68,17 @@ public class BBDDManager {
                 (String) sourceAsMap.get("pass"));
         return e;
     }
-    
-    public List<Empleado> findEmpleados(SearchRequest findRequest) throws IOException{
+
+    public List<Empleado> findEmpleados(SearchRequest findRequest) throws IOException {
         List<Empleado> empleados = new ArrayList<>();
         SearchResponse response = client.search(findRequest, RequestOptions.DEFAULT);
         SearchHit[] results = response.getHits().getHits();
         for (SearchHit h : results) {
             Map<String, Object> sourceAsMap = h.getSourceAsMap();
             Empleado e = new Empleado((String) sourceAsMap.get("user"),
-                (String) sourceAsMap.get("name"), (String) sourceAsMap.get("surname"),
-                (String) sourceAsMap.get("phone"), (String) sourceAsMap.get("dni"),
-                (String) sourceAsMap.get("pass"));
+                    (String) sourceAsMap.get("name"), (String) sourceAsMap.get("surname"),
+                    (String) sourceAsMap.get("phone"), (String) sourceAsMap.get("dni"),
+                    (String) sourceAsMap.get("pass"));
             empleados.add(e);
         }
         return empleados;
@@ -84,7 +87,7 @@ public class BBDDManager {
     public int getID(SearchRequest searchRequest) {
         try {
             SearchResponse response = client.search(searchRequest, RequestOptions.DEFAULT);
-            
+
             SearchHit[] results = response.getHits().getHits();
             int maxId = 0;
             for (SearchHit h : results) {
@@ -93,7 +96,7 @@ public class BBDDManager {
                     maxId = actualId;
                 }
             }
-            return maxId;
+            return maxId++;
         } catch (IOException ex) {
             return 0;
         }
@@ -235,11 +238,11 @@ public class BBDDManager {
 
             SearchHit[] results = searchResponse.getHits().getHits();
             for (SearchHit hit : results) {
-                Map<String, Object> incidents = hit.getSourceAsMap();
+                Map<String, Object> incident = hit.getSourceAsMap();
                 if (hit.getId().equals(String.valueOf(id))) {
-                    LocalDate date = LocalDate.parse(incidents.get("date").toString(), formatter);
-                    i = new Incidencia(date, incidents.get("origin").toString(),
-                            incidents.get("destination").toString(), incidents.get("detail").toString(), getIncidentType(incidents.get("type").toString()));
+                    LocalDate date = LocalDate.parse(incident.get("date").toString(), formatter);
+                    i = new Incidencia(date, incident.get("origin").toString(),
+                            incident.get("destination").toString(), incident.get("detail").toString(), getIncidentType(incident.get("type").toString()));
                     return i;
                 }
             }
@@ -255,5 +258,43 @@ public class BBDDManager {
         } catch (IOException ex) {
             System.out.println(ex.getMessage());
         }
+    }
+
+    public List<RankingTO> getRanking(SearchRequest searchEmpleadoRequest) throws IOException {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        List<RankingTO> rankingEmpleados = new ArrayList<>();
+        List<Incidencia> incidencias = new ArrayList<>();
+        SearchRequest searchIncidentRequest = new SearchRequest();
+        searchIncidentRequest.indices("incidents");
+        SearchResponse incidentResponse = client.search(searchIncidentRequest, RequestOptions.DEFAULT);
+        
+        SearchHit[] incidentsResults = incidentResponse.getHits().getHits();
+        for (SearchHit h : incidentsResults) {
+            Map<String, Object> sourceAsMap = h.getSourceAsMap();
+            LocalDate date = LocalDate.parse(sourceAsMap.get("date").toString(), formatter);
+            Incidencia i = new Incidencia(date, sourceAsMap.get("origin").toString(),
+                    sourceAsMap.get("destination").toString(), sourceAsMap.get("detail").toString(), getIncidentType(sourceAsMap.get("type").toString()));
+            incidencias.add(i);
+        }
+        
+        SearchResponse empleadoResponse = client.search(searchEmpleadoRequest, RequestOptions.DEFAULT);
+        SearchHit[] employeeResults = empleadoResponse.getHits().getHits();
+        for (SearchHit h : employeeResults) {
+            Map<String, Object> sourceAsMap = h.getSourceAsMap();
+            Empleado e = new Empleado((String) sourceAsMap.get("user"),
+                    (String) sourceAsMap.get("name"), (String) sourceAsMap.get("surname"),
+                    (String) sourceAsMap.get("phone"), (String) sourceAsMap.get("dni"),
+                    (String) sourceAsMap.get("pass"));
+            int numInc = 0;
+            for (Incidencia i : incidencias){
+                if (i.getOrigen().equals(e.getUsuario())){
+                    if(i.getTipo().equals(Tipo.URGENTE)){
+                        numInc++;
+                    }
+                }
+            }
+            rankingEmpleados.add(new RankingTO(e, numInc));
+        }
+        return rankingEmpleados;
     }
 }

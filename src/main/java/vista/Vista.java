@@ -38,9 +38,7 @@ public class Vista {
         daoInterfaceImpl.close();
     }
 
-    
 
-    //TODO INSERT EVENTO
     private static void login() {
         Empleado e;
         String username = InputAsker.askString("Username: ");
@@ -56,6 +54,8 @@ public class Vista {
             if (e != null) {
                 daoInterfaceImpl.insertarEvento(new Evento(TipoEvento.I, LocalDate.now(), e.getUsuario()));
                 userInterface.menuUsuario(e, daoInterfaceImpl);
+            } else{
+                System.out.println("User does not exists");
             }
         }
     }

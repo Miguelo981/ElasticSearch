@@ -10,6 +10,7 @@ import java.util.List;
 import modelo.DAOInterfaceImpl;
 import modelo.Empleado;
 import modelo.Incidencia;
+import modelo.RankingTO;
 import modelo.enums.Tipo;
 import org.elasticsearch.client.indices.GetIndexRequest;
 
@@ -19,19 +20,19 @@ import org.elasticsearch.client.indices.GetIndexRequest;
  */
 public class UserInterface {
 
-    private DAOInterfaceImpl daoInterfaceImpl;
+    private DAOInterfaceImpl daoInterface;
 
     public UserInterface() {
-        if (new GetIndexRequest("users").local()) {
-                System.out.println("EXISTO"); 
-            } else {
-            System.out.println("NO EXISTO?");
-        }
+//        if (new GetIndexRequest("users").local()) {
+//                System.out.println("EXISTO"); 
+//            } else {
+//            System.out.println("NO EXISTO?");
+//        }
     }
 
-    public void menuUsuario(Empleado e, DAOInterfaceImpl impl) {
+    public void menuUsuario(Empleado e, DAOInterfaceImpl dao) {
         Boolean response = false;
-        daoInterfaceImpl = impl;
+        daoInterface = dao;
         do {
             if (e.getUsuario().equals("admin") && e.getPassword().equals("admin")) {
                 switch (InputAsker.askInt(menuAdmin())) {
@@ -82,7 +83,7 @@ public class UserInterface {
     }
 
     private String menuAdmin() {
-        return "1 - Register.\n2 - Get Ranking Employee\n0.- Exit";
+        return "1 - Register.\n2 - Update Emloyee\n3 - Delete Employee\n4 - Get Ranking Employee\n0.- Exit";
     }
 
     private void insertarIncidencia(Empleado e) {
@@ -92,12 +93,12 @@ public class UserInterface {
         i.setDestino(InputAsker.askString("Destination: "));
         i.setDetalle(InputAsker.askString("Detail: "));
         i.setTipo(getTipo(InputAsker.askString("Type: ")));
-        daoInterfaceImpl.insertIncidencia(i);
+        daoInterface.insertIncidencia(i);
     }
 
     private void incidenciaByID() {
         int id = InputAsker.askInt("ID: ");
-        System.out.println(daoInterfaceImpl.getIncidenciaById(id).toString());
+        System.out.println(daoInterface.getIncidenciaById(id).toString());
     }
 
     private void registEmpleado() {
@@ -117,12 +118,12 @@ public class UserInterface {
         e.setApellidos(InputAsker.askString("Surname: "));
         e.setTelefono(InputAsker.askString("Phone number: ", 8));
         e.setDni(InputAsker.askDNI("DNI: "));
-        daoInterfaceImpl.insertEmpleado(e);
+        daoInterface.insertEmpleado(e);
     }
 
     private void updateEmpleado() {
         System.out.println("Update");
-        List<Empleado> empleados = daoInterfaceImpl.findEmpleados();
+        List<Empleado> empleados = daoInterface.findEmpleados();
         if (!empleados.isEmpty()) {
             for (Empleado e : empleados) {
                 System.out.println(e.toString());
@@ -141,7 +142,7 @@ public class UserInterface {
                 e.setApellidos(InputAsker.askString("Surname ("+e.getApellidos()+"): "));
                 e.setTelefono(InputAsker.askString("Phone number ("+e.getTelefono()+"): ", 8));
                 e.setDni(InputAsker.askDNI("DNI ("+e.getDni()+"): "));
-                daoInterfaceImpl.updateEmpleado(e);
+                daoInterface.updateEmpleado(e);
             }
         } else {
             System.out.println("No users registered");
@@ -150,7 +151,7 @@ public class UserInterface {
 
     private void deleteEmpleado() {
         System.out.println("Delete");
-        List<Empleado> empleados = daoInterfaceImpl.findEmpleados();
+        List<Empleado> empleados = daoInterface.findEmpleados();
         if (!empleados.isEmpty()) {
             for (Empleado e : empleados) {
                 System.out.println(e.toString());
@@ -165,7 +166,7 @@ public class UserInterface {
             if (e == null) {
                 System.out.println("No user exists with that username");
             } else {
-                daoInterfaceImpl.removeEmpleado(e);
+                daoInterface.removeEmpleado(e);
             }
         } else {
             System.out.println("No users registered");
@@ -184,23 +185,29 @@ public class UserInterface {
     }
 
     private void getAllIncidencias() {
-        for (Incidencia i : daoInterfaceImpl.selectAllIncidencias()) {
+        for (Incidencia i : daoInterface.selectAllIncidencias()) {
             System.out.println(i);
         }
     }
 
     private void getRankingEmpleados() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        List<RankingTO> rankingEmpleados = daoInterface.getRankingEmpleados();
+        if(rankingEmpleados.isEmpty()){
+            System.out.println("No employees");
+        }
+        for(RankingTO to : rankingEmpleados){
+            System.out.println(to);
+        }
     }
 
     private void getIncidentByOrigen(Empleado e) {
-        for (Incidencia i : daoInterfaceImpl.getIncidenciaByOrigen(e)) {
+        for (Incidencia i : daoInterface.getIncidenciaByOrigen(e)) {
             System.out.println(i);
         }
     }
 
     private void getIncidentByDestino(Empleado e) {
-        for (Incidencia i : daoInterfaceImpl.getIncidenciaByDestino(e)) {
+        for (Incidencia i : daoInterface.getIncidenciaByDestino(e)) {
             System.out.println(i);
         }
     }

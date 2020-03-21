@@ -9,6 +9,7 @@ import controller.BBDDManager;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.logging.Level;
@@ -49,26 +50,7 @@ public class DAOInterfaceImpl implements DAOInterface {
         SearchRequest searchRequest = new SearchRequest();
         searchRequest.indices("users");
         searchRequest.source(sourceBuilder);
-        if (!new GetIndexRequest("users").local() || !managerDao.checkUserExists(searchRequest)) {
-            HashMap<String, Object> jsonMap = new HashMap<>();
-            jsonMap.put("user", e.getUsuario());
-            jsonMap.put("name", e.getNombre());
-            jsonMap.put("pass", e.getPassword());
-            jsonMap.put("surname", e.getApellidos());
-            jsonMap.put("phone", e.getTelefono());
-            jsonMap.put("dni", e.getDni());
-            int id;
-            if (!new GetIndexRequest("users").local()) {
-                id = 0;
-            } else {
-                id = getEmployeeID();
-            }
-            IndexRequest indexRequest = new IndexRequest("users").id(String.valueOf(id)).source(jsonMap).opType(DocWriteRequest.OpType.CREATE);
-            if (managerDao.index(indexRequest)) {
-                System.out.println("User " + e.getUsuario() + " created successfully");
-            }
-        } else {
-            System.out.println("User already exists.");
+        if (!managerDao.checkUserExists(searchRequest)) {
             HashMap<String, Object> jsonMap = new HashMap<>();
             jsonMap.put("user", e.getUsuario());
             jsonMap.put("name", e.getNombre());
@@ -79,42 +61,40 @@ public class DAOInterfaceImpl implements DAOInterface {
             int id = getEmployeeID();
             IndexRequest indexRequest = new IndexRequest("users").id(String.valueOf(id)).source(jsonMap).opType(DocWriteRequest.OpType.CREATE);
             if (managerDao.index(indexRequest)) {
-                System.out.println("Usuario " + e.getUsuario() + " creado con exito!");
-            } else {
-                System.out.println("Error al crear usuario!");
+                System.out.println("User " + e.getUsuario() + " created successfully");
             }
+        } else {
+            System.out.println("User already exists.");
         }
 
+    }
+
+    public boolean checkUser(Empleado e) {
+        SearchSourceBuilder sourceBuilder = new SearchSourceBuilder();
+        sourceBuilder.query(QueryBuilders.termQuery("user", e.getUsuario()));
+        SearchRequest searchRequest = new SearchRequest();
+        searchRequest.indices("users");
+        searchRequest.source(sourceBuilder);
+        return managerDao.checkUserExists(searchRequest);
     }
 
     public int getEmployeeID() {
-        int id = 0;
-        try {
-            SearchSourceBuilder sourceBuilder = new SearchSourceBuilder();
-            sourceBuilder.query(QueryBuilders.matchAllQuery());
-            SearchRequest searchRequest = new SearchRequest();
-            searchRequest.indices("users");
-            searchRequest.source(sourceBuilder);
-            id = managerDao.getID(searchRequest);
-        } catch (Exception ex) {
-            System.out.println(ex.getMessage());
-        }
-        return id + 1;
+        SearchSourceBuilder sourceBuilder = new SearchSourceBuilder();
+        sourceBuilder.query(QueryBuilders.matchAllQuery());
+        SearchRequest searchRequest = new SearchRequest();
+        searchRequest.indices("users");
+        searchRequest.source(sourceBuilder);
+        return managerDao.getID(searchRequest);
+
     }
 
     public int getIDEvento() {
-        int id = 0;
-        try {
-            SearchSourceBuilder sourceBuilder = new SearchSourceBuilder();
-            sourceBuilder.query(QueryBuilders.matchAllQuery());
-            SearchRequest searchRequest = new SearchRequest();
-            searchRequest.indices("events");
-            searchRequest.source(sourceBuilder);
-            id = managerDao.getID(searchRequest);
-        } catch (Exception ex) {
-            System.out.println(ex.getMessage());
-        }
-        return id + 1;
+        SearchSourceBuilder sourceBuilder = new SearchSourceBuilder();
+        sourceBuilder.query(QueryBuilders.matchAllQuery());
+        SearchRequest searchRequest = new SearchRequest();
+        searchRequest.indices("events");
+        searchRequest.source(sourceBuilder);
+        return managerDao.getID(searchRequest);
     }
 
     @Override
@@ -122,12 +102,13 @@ public class DAOInterfaceImpl implements DAOInterface {
         try {
             SearchSourceBuilder sourceBuilder = new SearchSourceBuilder();
             sourceBuilder.query(QueryBuilders.termQuery("user", user));
-            sourceBuilder.query(QueryBuilders.termQuery("pass", pass)); //Funciona?
             SearchRequest searchRequest = new SearchRequest();
             searchRequest.indices("users");
             searchRequest.source(sourceBuilder);
             Empleado e = managerDao.getEmpleado(searchRequest);
-            return e;
+            if (e.getPassword().equals(pass)) {
+                return e;
+            }
         } catch (Exception ex) {
             System.out.println(ex.getMessage());
         }
@@ -249,7 +230,18 @@ public class DAOInterfaceImpl implements DAOInterface {
 
     @Override
     public List<RankingTO> getRankingEmpleados() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        List<RankingTO> rankingEmpleados = new ArrayList<>();
+        try {
+            SearchSourceBuilder sourceBuilder = new SearchSourceBuilder();
+            sourceBuilder.query(QueryBuilders.matchAllQuery());
+            SearchRequest searchRequest = new SearchRequest();
+            searchRequest.indices("users");
+            rankingEmpleados = managerDao.getRanking(searchRequest);
+        } catch (IOException ex) {
+            System.out.println(ex.getMessage());
+        }
+        Collections.sort(rankingEmpleados);
+        return rankingEmpleados;
     }
 
     @Override

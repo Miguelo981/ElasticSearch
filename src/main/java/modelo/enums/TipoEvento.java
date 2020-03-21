@@ -10,6 +10,5 @@ package modelo.enums;
  * @author alu2018262
  */
 public enum TipoEvento {   
-    I,E,U
-    
+    I,E,U    
 }
