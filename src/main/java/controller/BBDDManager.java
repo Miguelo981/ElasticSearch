@@ -10,9 +10,11 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import modelo.Empleado;
+import modelo.Evento;
 import modelo.Incidencia;
 import modelo.RankingTO;
 import modelo.enums.Tipo;
+import modelo.enums.TipoEvento;
 import org.apache.http.HttpHost;
 import org.elasticsearch.ElasticsearchStatusException;
 import org.elasticsearch.action.delete.DeleteRequest;
@@ -99,7 +101,6 @@ public class BBDDManager {
     public int getID(SearchRequest searchRequest) {
         try {
             SearchResponse response = client.search(searchRequest, RequestOptions.DEFAULT);
-
             SearchHit[] results = response.getHits().getHits();
             int maxId = 0;
             for (SearchHit h : results) {
@@ -108,7 +109,8 @@ public class BBDDManager {
                     maxId = actualId;
                 }
             }
-            return maxId++;
+            maxId++;
+            return maxId;
         } catch (IOException ex) {
             return 0;
         }
@@ -322,5 +324,33 @@ public class BBDDManager {
             rankingEmpleados.add(new RankingTO(e, numInc));
         }
         return rankingEmpleados;
+    }
+
+    public Evento getLastSession(Empleado e) {
+        Evento evento = null;
+        try {
+            
+            SearchRequest getRequest = new SearchRequest();
+            getRequest.indices("events");
+            SearchResponse response = client.search(getRequest, RequestOptions.DEFAULT);
+            SearchHit[] results = response.getHits().getHits();
+            List<SearchHit> sortedResults = new ArrayList<>();
+            for (SearchHit h : results){
+                Map<String, Object> sourceAsMap = h.getSourceAsMap();
+                if(sourceAsMap.get("user").equals(e.getUsuario())){
+                    if (sourceAsMap.get("type").equals("I"))
+                        sortedResults.add(h);
+                }
+            }
+            if(!sortedResults.isEmpty()){
+                SearchHit hit = sortedResults.get(sortedResults.size()-1);
+                Map<String, Object> sourceAsMap = hit.getSourceAsMap();
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+                evento = new Evento(TipoEvento.I, LocalDate.parse(sourceAsMap.get("date").toString(), formatter), sourceAsMap.get("user").toString());
+            }            
+        } catch (IOException ex) {
+            System.out.println(ex.getMessage());
+        }
+        return evento;
     }
 }
