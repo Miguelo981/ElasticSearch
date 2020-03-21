@@ -37,10 +37,18 @@ public class BBDDManager {
     private static BBDDManager managerDao;
     RestHighLevelClient client;
 
+    /**
+     * Función para establecer la conexión con la BBDD.
+     */
     private BBDDManager() {
         client = new RestHighLevelClient(RestClient.builder(new HttpHost("localhost", 9200, "http")));
     }
 
+    /**
+     * Función establacer un singelton de la classe.
+     *
+     * @return
+     */
     public static BBDDManager getManagerDao() {
         if (managerDao == null) {
             managerDao = new BBDDManager();
@@ -59,11 +67,12 @@ public class BBDDManager {
     }
 
     /**
-     * Función para devolver el objeto empleado, pasando por parametro la consulta.
-     * Nos permitira guardar el empleado que haya inciado sesión.
+     * Función para devolver el objeto empleado, pasando por parametro la
+     * consulta. Nos permitira guardar el empleado que haya inciado sesión.
+     *
      * @param getRequest
      * @return
-     * @throws Exception 
+     * @throws Exception
      */
     public Empleado getEmpleado(SearchRequest getRequest) throws Exception {
         SearchResponse response = client.search(getRequest, RequestOptions.DEFAULT);
@@ -78,10 +87,13 @@ public class BBDDManager {
     }
 
     /**
-     * 
+     * Función para recoger todos empleados de la BBDD, recogemos los resultados
+     * y los recorremos, los serializamos y los agregamos a la lista de
+     * empleados. Finalmente devolvemos la lista.
+     *
      * @param findRequest
      * @return
-     * @throws IOException 
+     * @throws IOException
      */
     public List<Empleado> findEmpleados(SearchRequest findRequest) throws IOException {
         List<Empleado> empleados = new ArrayList<>();
@@ -98,6 +110,13 @@ public class BBDDManager {
         return empleados;
     }
 
+    /**
+     * Función que nos permite gestionar las ID, recoge la última ID registrada
+     * y la incrementa en 1, para la proxima petición.
+     *
+     * @param searchRequest
+     * @return
+     */
     public int getID(SearchRequest searchRequest) {
         try {
             SearchResponse response = client.search(searchRequest, RequestOptions.DEFAULT);
@@ -117,10 +136,12 @@ public class BBDDManager {
     }
 
     /**
-     * Función para recoger todas las incidencias de la BBDD, recogemos los resultados
-     * del indice 'incidents', recorremos todos los resultados, los serializamos y los 
-     * agregamos a la lista de incidencias. Finalmente devolvemos la lista.
-     * @return 
+     * Función para recoger todas las incidencias de la BBDD, recogemos los
+     * resultados del indice 'incidents', recorremos todos los resultados, los
+     * serializamos y los agregamos a la lista de incidencias. Finalmente
+     * devolvemos la lista.
+     *
+     * @return
      */
     public List<Incidencia> getAllIncidents() {
         List<Incidencia> incidencias = new ArrayList<>();
@@ -147,12 +168,14 @@ public class BBDDManager {
     }
 
     /**
-     * Función para recoger todas las incidencias de la BBDD, pasando como condicion
-     * el origen. Recogemos los resultados del indice 'incidents', recorremos todos los resultados, 
-     * los serializamos y los agregamos a la lista de incidencias. Finalmente devolvemos la lista.
+     * Función para recoger todas las incidencias de la BBDD, pasando como
+     * condicion el origen. Recogemos los resultados del indice 'incidents',
+     * recorremos todos los resultados, los serializamos y los agregamos a la
+     * lista de incidencias. Finalmente devolvemos la lista.
+     *
      * @param searchRequest
      * @param e
-     * @return 
+     * @return
      */
     public List<Incidencia> getIncidentsByOrigin(SearchRequest searchRequest, String e) {
         List<Incidencia> incidencias = new ArrayList<>();
@@ -176,6 +199,16 @@ public class BBDDManager {
         return incidencias;
     }
 
+    /**
+     * Función para recoger todas las incidencias de la BBDD, pasando como
+     * condicion el destino. Recogemos los resultados del indice 'incidents',
+     * recorremos todos los resultados, los serializamos y los agregamos a la
+     * lista de incidencias. Finalmente devolvemos la lista.
+     *
+     * @param searchRequest
+     * @param e
+     * @return
+     */
     public List<Incidencia> getIncidentsByDestination(SearchRequest searchRequest, String e) {
         List<Incidencia> incidencias = new ArrayList<>();
         try {
@@ -199,6 +232,13 @@ public class BBDDManager {
         return incidencias;
     }
 
+    /**
+     * Función que permite comprobar que no existan dos usuarios iguales, de
+     * esta forma evitamos que existan usuarios duplicados.
+     *
+     * @param searchRequest
+     * @return
+     */
     public boolean checkUserExists(SearchRequest searchRequest) {
         try {
             SearchResponse searchResponse = client.search(searchRequest, RequestOptions.DEFAULT);
@@ -212,6 +252,14 @@ public class BBDDManager {
         return true;
     }
 
+    /**
+     * Función que permite actualizar los datos de perfil del empleado, por
+     * parametro pasamos la petición de buscado juntamente con un el mapeado de
+     * clave de tipo cadena y el valor de tipo objeto.
+     *
+     * @param searchRequest
+     * @param jsonMap
+     */
     public void updateEmpleado(SearchRequest searchRequest, HashMap<String, Object> jsonMap) {
         try {
             SearchResponse searchResponse = client.search(searchRequest, RequestOptions.DEFAULT);
@@ -229,6 +277,13 @@ public class BBDDManager {
         }
     }
 
+    /**
+     * Función que permite devolver el tipo de incidencia pasando por parametro
+     * el tipo, de tipo String.
+     *
+     * @param tipo
+     * @return
+     */
     public Tipo getIncidentType(String tipo) {
         switch (tipo.toUpperCase()) {
             case "URGENTE":
@@ -239,6 +294,15 @@ public class BBDDManager {
         return null;
     }
 
+    /**
+     * Función que permite eliminar empleados, por parametro pasamos la petición
+     * de la busqueda y el nombre de usuario. Recorremos los resultados y
+     * comprobamos que el nombre coincida con el usuario pasado por parametro,
+     * si es así entonces lo eliminaremos.
+     *
+     * @param searchRequest
+     * @param user
+     */
     public void delete(SearchRequest searchRequest, String user) {
         try {
             SearchResponse searchResponse = client.search(searchRequest, RequestOptions.DEFAULT);
@@ -256,6 +320,16 @@ public class BBDDManager {
         }
     }
 
+    /**
+     * Función que permite devolver un objecto de tipo Incidencia pasando por
+     * parametro la id. Hacemos la consulta, recogemos los resultados y los
+     * recorremos. Seguidamente mediante una condición comprobamos que la
+     * incidencia que recorremos sea la que hayamos pasado por parametro. Si es
+     * así, serializamos el resultado y devolvemos la incidencia.
+     *
+     * @param id
+     * @return
+     */
     public Incidencia getIncidentByID(int id) {
         Incidencia i = null;
         try {
@@ -280,6 +354,9 @@ public class BBDDManager {
         return i;
     }
 
+    /**
+     * Función para cerrar la conexión con la BBDD.
+     */
     public void close() {
         try {
             client.close();
@@ -288,6 +365,18 @@ public class BBDDManager {
         }
     }
 
+    /**
+     * Función que permite obtener el ranking de los empleados según el tipo de
+     * incidencias. Pasamos por parametro la petición. Recogemos los resultados
+     * y los recorremos. Seguidamente serializamos el resultado y lo agremos a
+     * la lista de incidencias. Finalmente recorremos el resultado de la
+     * consulta de empleados y agregamos a la lista de tipo 'RankingTO', el
+     * empleado y el número de incidencias.
+     *
+     * @param searchEmpleadoRequest
+     * @return
+     * @throws IOException
+     */
     public List<RankingTO> getRanking(SearchRequest searchEmpleadoRequest) throws IOException {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
         List<RankingTO> rankingEmpleados = new ArrayList<>();
@@ -295,7 +384,7 @@ public class BBDDManager {
         SearchRequest searchIncidentRequest = new SearchRequest();
         searchIncidentRequest.indices("incidents");
         SearchResponse incidentResponse = client.search(searchIncidentRequest, RequestOptions.DEFAULT);
-        
+
         SearchHit[] incidentsResults = incidentResponse.getHits().getHits();
         for (SearchHit h : incidentsResults) {
             Map<String, Object> sourceAsMap = h.getSourceAsMap();
@@ -304,7 +393,7 @@ public class BBDDManager {
                     sourceAsMap.get("destination").toString(), sourceAsMap.get("detail").toString(), getIncidentType(sourceAsMap.get("type").toString()));
             incidencias.add(i);
         }
-        
+
         SearchResponse empleadoResponse = client.search(searchEmpleadoRequest, RequestOptions.DEFAULT);
         SearchHit[] employeeResults = empleadoResponse.getHits().getHits();
         for (SearchHit h : employeeResults) {
@@ -314,9 +403,9 @@ public class BBDDManager {
                     (String) sourceAsMap.get("phone"), (String) sourceAsMap.get("dni"),
                     (String) sourceAsMap.get("pass"));
             int numInc = 0;
-            for (Incidencia i : incidencias){
-                if (i.getOrigen().equals(e.getUsuario())){
-                    if(i.getTipo().equals(Tipo.URGENTE)){
+            for (Incidencia i : incidencias) {
+                if (i.getOrigen().equals(e.getUsuario())) {
+                    if (i.getTipo().equals(Tipo.URGENTE)) {
                         numInc++;
                     }
                 }
@@ -326,28 +415,38 @@ public class BBDDManager {
         return rankingEmpleados;
     }
 
+    /**
+     * Función para obtener el último incio de sesión, por paremtro pasamos el
+     * empleado. Hacemos una petición a la BBDD con el índice 'events'.
+     * Recogemos los resultados y los recorremos todos aquellos cuyo tipo sea
+     * 'I'. Por último, si la lista no esta vacia serializamos el resultado y lo
+     * devolvemos. Devolveremos un objeto de tipo Evento.
+     *
+     * @param e
+     * @return
+     */
     public Evento getLastSession(Empleado e) {
         Evento evento = null;
         try {
-            
             SearchRequest getRequest = new SearchRequest();
             getRequest.indices("events");
             SearchResponse response = client.search(getRequest, RequestOptions.DEFAULT);
             SearchHit[] results = response.getHits().getHits();
             List<SearchHit> sortedResults = new ArrayList<>();
-            for (SearchHit h : results){
+            for (SearchHit h : results) {
                 Map<String, Object> sourceAsMap = h.getSourceAsMap();
-                if(sourceAsMap.get("user").equals(e.getUsuario())){
-                    if (sourceAsMap.get("type").equals("I"))
+                if (sourceAsMap.get("user").equals(e.getUsuario())) {
+                    if (sourceAsMap.get("type").equals("I")) {
                         sortedResults.add(h);
+                    }
                 }
             }
-            if(!sortedResults.isEmpty()){
-                SearchHit hit = sortedResults.get(sortedResults.size()-1);
+            if (!sortedResults.isEmpty()) {
+                SearchHit hit = sortedResults.get(sortedResults.size() - 1);
                 Map<String, Object> sourceAsMap = hit.getSourceAsMap();
                 DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
                 evento = new Evento(TipoEvento.I, LocalDate.parse(sourceAsMap.get("date").toString(), formatter), sourceAsMap.get("user").toString());
-            }            
+            }
         } catch (IOException ex) {
             System.out.println(ex.getMessage());
         }

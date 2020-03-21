@@ -11,6 +11,9 @@ package modelo;
  */
 public class Empleado {
 
+    /**
+     * Para los atributos del empleado hemos utilizado strings.
+     */
     private String usuario, nombre, apellidos, telefono, dni, password;
 
     public Empleado() {
@@ -73,6 +76,12 @@ public class Empleado {
         this.password = password;
     }
 
+    /**
+     * Función toString sobreescrita para devolver el resultado por pantalla de
+     * los empleados.
+     *
+     * @return
+     */
     @Override
     public String toString() {
         return "Empleado -> " + "usuario=" + usuario + ", nombre=" + nombre + ", apellidos=" + apellidos + ", telefono=" + telefono + ", dni=" + dni;

@@ -14,15 +14,29 @@ public class Vista {
 
     private static DAOInterfaceImpl daoInterfaceImpl;
 
+    /**
+     * Se hace una instanciación del singelton, y además se llama a la función
+     * menuConsola.
+     *
+     * @param args
+     */
     public static void main(String[] args) {
         daoInterfaceImpl = DAOInterfaceImpl.getInstance();
         menuConsola();
     }
 
+    /**
+     * Función para mostrar el menú inicial.
+     *
+     * @return
+     */
     private static String menu() {
         return "1 - Login.\n0 - Exit";
     }
 
+    /**
+     * Función para inciar el menú incial según la opción que seleccionen.
+     */
     public static void menuConsola() {
         Boolean response = false;
         do {
@@ -38,7 +52,10 @@ public class Vista {
         daoInterfaceImpl.close();
     }
 
-
+    /**
+     * Función para hacer el login. Se pide por pantalla tanto el usuario como
+     * la contraseña.
+     */
     private static void login() {
         Empleado e;
         String username = InputAsker.askString("Username: ");
@@ -54,7 +71,7 @@ public class Vista {
             if (e != null) {
                 daoInterfaceImpl.insertarEvento(new Evento(TipoEvento.I, LocalDate.now(), e.getUsuario()));
                 userInterface.menuUsuario(e, daoInterfaceImpl);
-            } else{
+            } else {
                 System.out.println("User does not exists");
             }
         }

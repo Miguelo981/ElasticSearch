@@ -24,13 +24,15 @@ public class UserInterface {
     private DAOInterfaceImpl daoInterface;
 
     public UserInterface() {
-//        if (new GetIndexRequest("users").local()) {
-//                System.out.println("EXISTO"); 
-//            } else {
-//            System.out.println("NO EXISTO?");
-//        }
     }
 
+    /**
+     * Función para devolver todas las opciones del usuario logueado. Según el
+     * tipo de usuario se le mostrar unas opciones u otras.
+     *
+     * @param e
+     * @param dao
+     */
     public void menuUsuario(Empleado e, DAOInterfaceImpl dao) {
         Boolean response = false;
         daoInterface = dao;
@@ -81,14 +83,33 @@ public class UserInterface {
         } while (!response);
     }
 
+    /**
+     * Función para mostrar por pantalla el menú de un usuario convencional
+     * (empleado).
+     *
+     * @return
+     */
     private String menu() {
         return "1 - Report incident.\n2 - Get incident by ID.\n3 - Show all incidents.\n4 - Get incident by origin.\n5 - Get incident by destination\n0.- Exit";
     }
 
+    /**
+     * Función para mostrar por pantalla el menú de un usuario con permisos
+     * (administrador)
+     *
+     * @return
+     */
     private String menuAdmin() {
         return "1 - Register.\n2 - Update Emloyee\n3 - Delete Employee\n4 - Get Ranking Employee\n5 - Get last Session from user\n0.- Exit";
     }
 
+    /**
+     * Función para insertar incidencia, se pasa por parametro un empleado. Se
+     * le pide al usuario que introduzca el destinatario, el detalle y el tipo
+     * de incidencia.
+     *
+     * @param e
+     */
     private void insertarIncidencia(Empleado e) {
         Incidencia i = new Incidencia();
         i.setFecha(LocalDate.now());
@@ -99,11 +120,20 @@ public class UserInterface {
         daoInterface.insertIncidencia(i);
     }
 
+    /**
+     * Función para ver una incidencia por ID. Se le pide al usuario que
+     * introduzca la ID, de cuya incidencia quiere.
+     */
     private void incidenciaByID() {
         int id = InputAsker.askInt("ID: ");
         System.out.println(daoInterface.getIncidenciaById(id).toString());
     }
 
+    /**
+     * Función para registrar un empleado, Se pide al usuario que escriba el
+     * usuario, el nombre, la contraseña (mínimo 8 digitos), los apellidos, el
+     * teléfono y el DNI (8 numeros y 1 letra).
+     */
     private void registEmpleado() {
         Empleado e = new Empleado();
         String user = InputAsker.askString("Username: ");
@@ -124,6 +154,11 @@ public class UserInterface {
         daoInterface.insertEmpleado(e);
     }
 
+    /**
+     * Función para actualizar un empleado, se le pide al usuario que escriba el
+     * nombre de usuario, en caso de exista, se le pidara que estableza los
+     * nuevos datos para el usuario.
+     */
     private void updateEmpleado() {
         System.out.println("Update");
         List<Empleado> empleados = daoInterface.findEmpleados();
@@ -141,10 +176,10 @@ public class UserInterface {
             if (e == null) {
                 System.out.println("No user exists with that username");
             } else {
-                e.setNombre(InputAsker.askString("Name ("+e.getNombre()+"): "));
-                e.setApellidos(InputAsker.askString("Surname ("+e.getApellidos()+"): "));
-                e.setTelefono(InputAsker.askString("Phone number ("+e.getTelefono()+"): ", 8));
-                e.setDni(InputAsker.askDNI("DNI ("+e.getDni()+"): "));
+                e.setNombre(InputAsker.askString("Name (" + e.getNombre() + "): "));
+                e.setApellidos(InputAsker.askString("Surname (" + e.getApellidos() + "): "));
+                e.setTelefono(InputAsker.askString("Phone number (" + e.getTelefono() + "): ", 8));
+                e.setDni(InputAsker.askDNI("DNI (" + e.getDni() + "): "));
                 daoInterface.updateEmpleado(e);
             }
         } else {
@@ -152,6 +187,12 @@ public class UserInterface {
         }
     }
 
+    /**
+     * Función para eliminar un empleado, se le pide al usuario que escriba el
+     * nombre de usuario que quiere eliminar, en caso de no haya ningún usuario
+     * registrado con ese nombre, se le mostrar un mensaje de error. Además, si
+     * no empleados registrados se le mostrar por pantalla.
+     */
     private void deleteEmpleado() {
         System.out.println("Delete");
         List<Empleado> empleados = daoInterface.findEmpleados();
@@ -176,7 +217,13 @@ public class UserInterface {
         }
     }
 
-    //Moverlo a otro sitio
+    /**
+     * Función para devolver el tipo de incidencia pasando por parametro el tipo
+     * en formato cadena.
+     *
+     * @param tipo
+     * @return
+     */
     public Tipo getTipo(String tipo) {
         switch (tipo.toUpperCase()) {
             case "URGENTE":
@@ -187,22 +234,34 @@ public class UserInterface {
         return null;
     }
 
+    /**
+     * Función para mostrar todas las incidencias registradas/almacenadas en la
+     * BBDD.
+     */
     private void getAllIncidencias() {
         for (Incidencia i : daoInterface.selectAllIncidencias()) {
             System.out.println(i);
         }
     }
 
+    /**
+     * Función para mostrar el ranking de empleados.
+     */
     private void getRankingEmpleados() {
         List<RankingTO> rankingEmpleados = daoInterface.getRankingEmpleados();
-        if(rankingEmpleados.isEmpty()){
+        if (rankingEmpleados.isEmpty()) {
             System.out.println("No employees");
         }
-        for(RankingTO to : rankingEmpleados){
+        for (RankingTO to : rankingEmpleados) {
             System.out.println(to);
         }
     }
 
+    /**
+     * Función para mostrar las incidencias por origen.
+     *
+     * @param e
+     */
     private void getIncidentByOrigen(Empleado e) {
         for (Incidencia i : daoInterface.getIncidenciaByOrigen(e)) {
             System.out.println(i);
@@ -215,6 +274,10 @@ public class UserInterface {
         }
     }
 
+    /**
+     * Función para mostrar el último inició de sesión, se le pide por pantalla
+     * que seleccione un empleado.
+     */
     private void getLastSession() {
         Evento evento = null;
         System.out.println("Get last session");
@@ -235,9 +298,9 @@ public class UserInterface {
             } else {
                 evento = daoInterface.getUltimoInicioSesion(e);
             }
-            if(evento==null){
+            if (evento == null) {
                 System.out.println("No events form that user");
-            } else{
+            } else {
                 System.out.println(evento);
             }
         } else {

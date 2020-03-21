@@ -1,10 +1,17 @@
 package modelo;
 
 /**
+ * Se implementa a la clase el comparable, permitira compara los objetos según
+ * sus atributos.
  *
  * @author alu2018240
  */
-public class RankingTO implements Comparable<RankingTO>{
+public class RankingTO implements Comparable<RankingTO> {
+
+    /**
+     * Atributo empleado de tipo Empleado y un int para el número de
+     * incidencias.
+     */
     private Empleado empleado;
     private int numIncidencias;
 
@@ -29,14 +36,27 @@ public class RankingTO implements Comparable<RankingTO>{
         this.numIncidencias = numIncidencias;
     }
 
+    /**
+     * Función compareTo sobreescrita para comprarar objetos de tipo RankingTO
+     * según el número de incidencias.
+     *
+     * @param t
+     * @return
+     */
     @Override
     public int compareTo(RankingTO t) {
-        if (numIncidencias>t.numIncidencias){
+        if (numIncidencias > t.numIncidencias) {
             return -1;
         }
         return 1;
     }
 
+    /**
+     * Función toString sobreescrita para devolver el resultado del número de
+     * incidencias.
+     *
+     * @return
+     */
     @Override
     public String toString() {
         return empleado + ", num incidencias urgentes=" + numIncidencias;

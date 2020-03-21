@@ -43,6 +43,15 @@ public class DAOInterfaceImpl implements DAOInterface {
         return daoInterfaceImpl;
     }
 
+    /**
+     * Función para insertar un empleado. Por parametro se pasa un objeto de
+     * tipo Empelado. En primer lugar, se reailiza la petición, se comprueba que
+     * no exista un usuario igual y finalmente se llama al managerDAO. Se hace
+     * el mapeo del objeto. Finalmente, si todo ha ido correcto, significara que
+     * el empleado ha sido insertado correctamente a la BBDD.
+     *
+     * @param e
+     */
     @Override
     public void insertEmpleado(Empleado e) {
         SearchSourceBuilder sourceBuilder = new SearchSourceBuilder();
@@ -73,6 +82,13 @@ public class DAOInterfaceImpl implements DAOInterface {
 
     }
 
+    /**
+     * Función para comprobar que no existan dos usuarios iguales. Se pasa por
+     * parametro un objeto de tipo Empleado.
+     *
+     * @param e
+     * @return
+     */
     public boolean checkUser(Empleado e) {
         SearchSourceBuilder sourceBuilder = new SearchSourceBuilder();
         sourceBuilder.query(QueryBuilders.termQuery("user", e.getUsuario()));
@@ -82,6 +98,11 @@ public class DAOInterfaceImpl implements DAOInterface {
         return managerDao.checkUserExists(searchRequest);
     }
 
+    /**
+     * Función para obtener la id de los empleados.
+     *
+     * @return
+     */
     public int getEmployeeID() {
         SearchRequest searchRequest = new SearchRequest();
         searchRequest.indices("users");
@@ -97,6 +118,18 @@ public class DAOInterfaceImpl implements DAOInterface {
         return managerDao.getID(searchRequest);
     }
 
+    /**
+     * Función para hacer el login, por parametro se pasa tanto el usuario como
+     * la contraseña, ambos de tipo String. Se realiza la petición, cuyo índice
+     * es 'users'. Recogemos el resultado de la petición y comprobamos que
+     * concida tanto el usuario como la password. Si es así, significa que los
+     * credenciales proporiciondos son correctos y devolveremos un objeto de
+     * tipo Empleado.
+     *
+     * @param user
+     * @param pass
+     * @return
+     */
     @Override
     public Empleado loginEmpleado(String user, String pass) {
         try {
@@ -115,6 +148,13 @@ public class DAOInterfaceImpl implements DAOInterface {
         return null;
     }
 
+    /**
+     * Función para actualizar los datos del empleado, se pasa por parametro el
+     * empleado. Hacemos un mapeado de los datos y llamamos la función del
+     * 'updateEmpleado' del managerDAO.
+     *
+     * @param e
+     */
     @Override
     public void updateEmpleado(Empleado e) {
         HashMap<String, Object> jsonMap = new HashMap<>();
@@ -130,6 +170,14 @@ public class DAOInterfaceImpl implements DAOInterface {
         managerDao.updateEmpleado(searchRequest, jsonMap);
     }
 
+    /**
+     * Función para eliminar un empleado, se pasa por parametro un objeto de
+     * tipo empleado. Se realiza una petición cuyo índice es 'users'.
+     * Seguidamente se llama la función 'delete' de managerDAO. Pasamos tanto la
+     * petición como el nombre de usuario del empleado.
+     *
+     * @param e
+     */
     @Override
     public void removeEmpleado(Empleado e) {
         SearchRequest searchRequest = new SearchRequest();
@@ -137,22 +185,54 @@ public class DAOInterfaceImpl implements DAOInterface {
         managerDao.delete(searchRequest, e.getUsuario());
     }
 
+    /**
+     * Función para devolver una incidencia. Pasamos por parametro la id.
+     * Finalmente, devolvemos el resultado tras llamar la función
+     * 'getIncidentByID' del managerDAO.
+     *
+     * @param id
+     * @return
+     */
     @Override
     public Incidencia getIncidenciaById(int id) {
         return managerDao.getIncidentByID(id);
     }
 
+    /**
+     * Función para devolver el listado de incidencias. Devolvemos el resultado
+     * tras llamar la función 'selectAllIncidencias' del managerDAO.
+     *
+     * @return
+     */
     @Override
     public List<Incidencia> selectAllIncidencias() {
         return managerDao.getAllIncidents();
     }
 
+    /**
+     * Función para devolver la ID de las incidencias. Devolvemos el resultado
+     * tras llamar la función 'getID' del managerDAO, le pasamos por parametro
+     * la petición a la BBDD.
+     *
+     * @return
+     */
     public int getIncidentID() {
         SearchRequest searchRequest = new SearchRequest();
         searchRequest.indices("incidents");
         return managerDao.getID(searchRequest);
     }
 
+    /**
+     * Función para insertar una incidencia. Por parametro se pasa un objeto de
+     * tipo Incidencia. En primer lugar, se reailiza la petición, se comprueba
+     * que exista el usuario y finalmente se llama al managerDAO. Se hace el
+     * mapeo del objeto. Si la incidencia es de tipo 'I', entonces insertaremos
+     * un evento con la fecha actual. Finalmente, si todo ha ido correctamente,
+     * significara que la incidencia ha sido insertada satisfacoriamente a la
+     * BBDD.
+     *
+     * @param i
+     */
     @Override
     public void insertIncidencia(Incidencia i) {
         SearchSourceBuilder sourceBuilder = new SearchSourceBuilder();
@@ -185,6 +265,16 @@ public class DAOInterfaceImpl implements DAOInterface {
         }
     }
 
+    /**
+     * Función para devolver el listado de incidencias por destino. Pasamos por
+     * parametro el empleado. Seguidamente hacemos la petición. Finalmente,
+     * devolvemos el resultado tras llamar a la función
+     * 'getIncidentsByDestination' de managerDAO, la cúal hemos pasado la
+     * petición y el nombre de usuario del empleado.
+     *
+     * @param e
+     * @return
+     */
     @Override
     public List<Incidencia> getIncidenciaByDestino(Empleado e) {
         SearchRequest searchRequest = new SearchRequest();
@@ -192,6 +282,16 @@ public class DAOInterfaceImpl implements DAOInterface {
         return managerDao.getIncidentsByDestination(searchRequest, e.getUsuario());
     }
 
+    /**
+     * Función para devolver el listado de incidencias por origen. Pasamos por
+     * parametro el empleado. Seguidamente hacemos la petición. Finalmente,
+     * devolvemos el resultado tras llamar a la función 'getIncidentsByOrigin'
+     * de managerDAO, la cúal hemos pasado la petición y el nombre de usuario
+     * del empleado.
+     *
+     * @param e
+     * @return
+     */
     @Override
     public List<Incidencia> getIncidenciaByOrigen(Empleado e) {
         SearchRequest searchRequest = new SearchRequest();
@@ -199,6 +299,14 @@ public class DAOInterfaceImpl implements DAOInterface {
         return managerDao.getIncidentsByOrigin(searchRequest, e.getUsuario());
     }
 
+    /**
+     * Función para insertar un eveneto. Por parametro se pasa un objeto de tipo
+     * Evento. Se reailiza la petición, seguidamente se llama al managerDAO. Se
+     * hace el mapeo del objeto. Finalmente, si todo ha ido correctamente,
+     * significara que el evento ha sido insertada satisfacoriamente a la BBDD.
+     *
+     * @param e
+     */
     @Override
     public void insertarEvento(Evento e) {
         HashMap<String, Object> jsonMap = new HashMap<>();
@@ -216,6 +324,15 @@ public class DAOInterfaceImpl implements DAOInterface {
         }
     }
 
+    /**
+     * Función para devolver el último inicio de sesisión según el emepleado.
+     * Pasamos por parametro un objecto de tipo empleado. Finalmente llamamos a
+     * la función 'getLastSessión' del managerDAO y devolvemos un objeto de tipo
+     * evento.
+     *
+     * @param e
+     * @return
+     */
     @Override
     public Evento getUltimoInicioSesion(Empleado e) {
         Evento evento = managerDao.getLastSession(e);
@@ -238,11 +355,22 @@ public class DAOInterfaceImpl implements DAOInterface {
         return rankingEmpleados;
     }
 
+    /**
+     * Función para cerrar la conexión con la BBDD.
+     */
     @Override
     public void close() {
         managerDao.close();
     }
 
+    /**
+     * Función para devolver el listado de empleados. Hacemos la petición cuyo
+     * índice es 'users'. Seguidamente, llamamos a la función 'findEmpleados' de
+     * managerDAO y pasamos la petición. Finalmente, devolvemos el listado de
+     * empleados.
+     *
+     * @return
+     */
     @Override
     public List<Empleado> findEmpleados() {
         List<Empleado> empleados = new ArrayList<>();

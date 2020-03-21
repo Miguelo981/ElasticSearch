@@ -13,7 +13,11 @@ import java.time.LocalDate;
  * @author alu2018262
  */
 public class Evento {
- 
+
+    /**
+     * Para el tipo de hemos utilizado un enumerado, un LocalDate para la fecha
+     * y un string para el nombre de usuario.
+     */
     private TipoEvento tipo;
     private LocalDate fecha;
     private String usuario;
@@ -48,6 +52,11 @@ public class Evento {
         this.usuario = usuario;
     }
 
+    /**
+     * Función sobrescrita para deolver el resultado de eventos por pantalla.
+     *
+     * @return
+     */
     @Override
     public String toString() {
         return "Historial -> " + "tipo=" + tipo + ", fecha=" + fecha + ", usuario=" + usuario;

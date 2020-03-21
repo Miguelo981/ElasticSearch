@@ -14,6 +14,11 @@ import java.time.LocalDate;
  */
 public class Incidencia {
 
+    /**
+     * Para la fecha hemos utilizado el LocalDate, para el origen, destino y
+     * detalla un String. Y por último para el tipo de incidencias hemos
+     * utilizado un enumero.
+     */
     private LocalDate fecha;
     private String orgien, destino, detalle;
     private Tipo tipo;
@@ -70,6 +75,12 @@ public class Incidencia {
         this.tipo = tipo;
     }
 
+    /**
+     * Función toString sobreescrita para devolver el resultado por pantalla de
+     * las incidencias.
+     *
+     * @return
+     */
     @Override
     public String toString() {
         return "Incidencia -> " + "fecha=" + fecha + ", orgien=" + orgien + ", destino=" + destino + ", detalle=" + detalle + ", tipo=" + tipo;

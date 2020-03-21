@@ -6,7 +6,7 @@
 package modelo.enums;
 
 /**
- *
+ * Enumerado para el tipo de incidencias.
  * @author alu2018262
  */
 public enum Tipo {

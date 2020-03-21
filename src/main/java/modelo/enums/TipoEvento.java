@@ -6,7 +6,7 @@
 package modelo.enums;
 
 /**
- *
+ * Enumerado para el tipo de evento.
  * @author alu2018262
  */
 public enum TipoEvento {   
