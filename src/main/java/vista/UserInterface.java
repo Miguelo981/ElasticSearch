@@ -9,6 +9,7 @@ import java.time.LocalDate;
 import java.util.List;
 import modelo.DAOInterfaceImpl;
 import modelo.Empleado;
+import modelo.Evento;
 import modelo.Incidencia;
 import modelo.RankingTO;
 import modelo.enums.Tipo;
@@ -48,7 +49,9 @@ public class UserInterface {
                     case 4:
                         getRankingEmpleados();
                         break;
-                        
+                    case 5:
+                        getLastSession();
+                        break;
                     case 0:
                         response = true;
                         break;
@@ -83,7 +86,7 @@ public class UserInterface {
     }
 
     private String menuAdmin() {
-        return "1 - Register.\n2 - Update Emloyee\n3 - Delete Employee\n4 - Get Ranking Employee\n0.- Exit";
+        return "1 - Register.\n2 - Update Emloyee\n3 - Delete Employee\n4 - Get Ranking Employee\n5 - Get last Session from user\n0.- Exit";
     }
 
     private void insertarIncidencia(Empleado e) {
@@ -209,6 +212,36 @@ public class UserInterface {
     private void getIncidentByDestino(Empleado e) {
         for (Incidencia i : daoInterface.getIncidenciaByDestino(e)) {
             System.out.println(i);
+        }
+    }
+
+    private void getLastSession() {
+        Evento evento = null;
+        System.out.println("Get last session");
+        List<Empleado> empleados = daoInterface.findEmpleados();
+        if (!empleados.isEmpty()) {
+            for (Empleado e : empleados) {
+                System.out.println(e.toString());
+            }
+            String user = InputAsker.askString("Select user (username)");
+            Empleado e = null;
+            for (Empleado empleado : empleados) {
+                if (empleado.getUsuario().equals(user)) {
+                    e = empleado;
+                }
+            }
+            if (e == null) {
+                System.out.println("No user exists with that username");
+            } else {
+                evento = daoInterface.getUltimoInicioSesion(e);
+            }
+            if(evento==null){
+                System.out.println("No events form that user");
+            } else{
+                System.out.println(evento);
+            }
+        } else {
+            System.out.println("No users registered");
         }
     }
 }

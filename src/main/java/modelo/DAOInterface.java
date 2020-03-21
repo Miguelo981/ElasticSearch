@@ -50,7 +50,7 @@ public abstract interface DAOInterface {
     public void insertarEvento(Evento e);
     
     // Obtener la fecha-hora del último inicio de sesión para un empleado.
-    public TipoEvento getUltimoInicioSesion(Empleado e);
+    public Evento getUltimoInicioSesion(Empleado e);
 
     // Obtener el ranking de los empleados por cantidad de incidencias
     // urgentes creadas (más incidencias urgentes primero).

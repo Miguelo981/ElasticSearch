@@ -50,6 +50,9 @@ public class DAOInterfaceImpl implements DAOInterface {
         SearchRequest searchRequest = new SearchRequest();
         searchRequest.indices("users");
         searchRequest.source(sourceBuilder);
+        if (!new GetIndexRequest("users").local()) {
+            new GetIndexRequest("users").local();
+        }
         if (!managerDao.checkUserExists(searchRequest)) {
             HashMap<String, Object> jsonMap = new HashMap<>();
             jsonMap.put("user", e.getUsuario());
@@ -58,7 +61,8 @@ public class DAOInterfaceImpl implements DAOInterface {
             jsonMap.put("surname", e.getApellidos());
             jsonMap.put("phone", e.getTelefono());
             jsonMap.put("dni", e.getDni());
-            int id = getEmployeeID();
+            int id;
+            id = getEmployeeID();
             IndexRequest indexRequest = new IndexRequest("users").id(String.valueOf(id)).source(jsonMap).opType(DocWriteRequest.OpType.CREATE);
             if (managerDao.index(indexRequest)) {
                 System.out.println("User " + e.getUsuario() + " created successfully");
@@ -79,13 +83,9 @@ public class DAOInterfaceImpl implements DAOInterface {
     }
 
     public int getEmployeeID() {
-        SearchSourceBuilder sourceBuilder = new SearchSourceBuilder();
-        sourceBuilder.query(QueryBuilders.matchAllQuery());
         SearchRequest searchRequest = new SearchRequest();
         searchRequest.indices("users");
-        searchRequest.source(sourceBuilder);
         return managerDao.getID(searchRequest);
-
     }
 
     public int getIDEvento() {
@@ -148,18 +148,9 @@ public class DAOInterfaceImpl implements DAOInterface {
     }
 
     public int getIncidentID() {
-        int id = 0;
-        try {
-            SearchSourceBuilder sourceBuilder = new SearchSourceBuilder();
-            sourceBuilder.query(QueryBuilders.matchAllQuery());
-            SearchRequest searchRequest = new SearchRequest();
-            searchRequest.indices("incidents");
-            searchRequest.source(sourceBuilder);
-            id = managerDao.getID(searchRequest);
-        } catch (Exception ex) {
-            System.out.println(ex.getMessage());
-        }
-        return id + 1;
+        SearchRequest searchRequest = new SearchRequest();
+        searchRequest.indices("incidents");
+        return managerDao.getID(searchRequest);
     }
 
     @Override
@@ -177,7 +168,9 @@ public class DAOInterfaceImpl implements DAOInterface {
                 jsonMap.put("destination", i.getDestino());
                 jsonMap.put("detail", i.getDetalle());
                 jsonMap.put("type", i.getTipo().name());
-                IndexRequest indexRequest = new IndexRequest("incidents").id(Integer.toString(getIncidentID())).source(jsonMap).opType(DocWriteRequest.OpType.CREATE);
+                int id;
+                id = getIncidentID();
+                IndexRequest indexRequest = new IndexRequest("incidents").id(Integer.toString(id)).source(jsonMap).opType(DocWriteRequest.OpType.CREATE);
                 if (managerDao.index(indexRequest)) {
                     System.out.println("Incidencia de tipo " + i.getTipo().name() + " creada con exito!");
                     if (i.getTipo().equals(Tipo.URGENTE)) {
@@ -224,8 +217,9 @@ public class DAOInterfaceImpl implements DAOInterface {
     }
 
     @Override
-    public TipoEvento getUltimoInicioSesion(Empleado e) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public Evento getUltimoInicioSesion(Empleado e) {
+        Evento evento = managerDao.getLastSession(e);
+        return evento;
     }
 
     @Override
